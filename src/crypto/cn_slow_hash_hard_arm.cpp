@@ -1,6 +1,37 @@
+// Copyright (c) 2017, SUMOKOIN
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Parts of this file are originally copyright (c) 2014-2017, The Monero Project
+// Parts of this file are originally copyright (c) 2012-2013, The Cryptonote developers
+
 #include "cn_slow_hash.hpp"
 extern "C" {
-#include "keccak.h"
+#include "../crypto/keccak.h"
 }
 
 #ifdef HAS_ARM_HW
@@ -135,8 +166,8 @@ inline void mem_load(cn_sptr& lpad, size_t i,uint8x16_t& x0, uint8x16_t& x1, uin
 	x7 ^= vld1q_u8(lpad.as_byte() + i + 112);
 }
 
-template<size_t MEMORY, size_t ITER, size_t VERSION>
-void cn_slow_hash<MEMORY,ITER,VERSION>::implode_scratchpad_hard()
+template<size_t MEMORY, size_t ITER, size_t POWVER>
+void cn_slow_hash<MEMORY,ITER,POWVER>::implode_scratchpad_hard()
 {
 	uint8x16_t x0, x1, x2, x3, x4, x5, x6, x7;
 	uint8x16_t k0, k1, k2, k3, k4, k5, k6, k7, k8, k9;
@@ -165,11 +196,11 @@ void cn_slow_hash<MEMORY,ITER,VERSION>::implode_scratchpad_hard()
 		aes_round10(x6, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9);
 		aes_round10(x7, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9);
 
-		if(VERSION > 0)
+		if(POWVER > 0)
 			xor_shift(x0, x1, x2, x3, x4, x5, x6, x7);
 	}
 
-	for (size_t i = 0; VERSION > 0 && i < MEMORY; i += 128)
+	for (size_t i = 0; POWVER > 0 && i < MEMORY; i += 128)
 	{
 		mem_load(lpad, i, x0, x1, x2, x3, x4, x5, x6, x7);
 
@@ -185,7 +216,7 @@ void cn_slow_hash<MEMORY,ITER,VERSION>::implode_scratchpad_hard()
 		xor_shift(x0, x1, x2, x3, x4, x5, x6, x7);
 	}
 
-	for (size_t i = 0; VERSION > 0 && i < 16; i++)
+	for (size_t i = 0; POWVER > 0 && i < 16; i++)
 	{
 		aes_round10(x0, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9);
 		aes_round10(x1, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9);
@@ -209,8 +240,8 @@ void cn_slow_hash<MEMORY,ITER,VERSION>::implode_scratchpad_hard()
 	vst1q_u8(spad.as_byte() + 176, x7);
 }
 
-template<size_t MEMORY, size_t ITER, size_t VERSION>
-void cn_slow_hash<MEMORY,ITER,VERSION>::explode_scratchpad_hard()
+template<size_t MEMORY, size_t ITER, size_t POWVER>
+void cn_slow_hash<MEMORY,ITER,POWVER>::explode_scratchpad_hard()
 {
 	uint8x16_t x0, x1, x2, x3, x4, x5, x6, x7;
 	uint8x16_t k0, k1, k2, k3, k4, k5, k6, k7, k8, k9;
@@ -226,7 +257,7 @@ void cn_slow_hash<MEMORY,ITER,VERSION>::explode_scratchpad_hard()
 	x6 = vld1q_u8(spad.as_byte() + 160);
 	x7 = vld1q_u8(spad.as_byte() + 176);
 
-	for (size_t i = 0; VERSION > 0 && i < 16; i++)
+	for (size_t i = 0; POWVER > 0 && i < 16; i++)
 	{
 		aes_round10(x0, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9);
 		aes_round10(x1, k0, k1, k2, k3, k4, k5, k6, k7, k8, k9);
@@ -279,8 +310,8 @@ inline uint8x16_t _mm_set_epi64x(const uint64_t a, const uint64_t b)
     return vreinterpretq_u8_u64(vcombine_u64(vcreate_u64(b), vcreate_u64(a)));
 }
 
-template<size_t MEMORY, size_t ITER, size_t VERSION>
-void cn_slow_hash<MEMORY,ITER,VERSION>::hardware_hash(const void* in, size_t len, void* out, bool prehashed)
+template<size_t MEMORY, size_t ITER, size_t POWVER>
+void cn_slow_hash<MEMORY,ITER,POWVER>::hardware_hash(const void* in, size_t len, void* out, bool prehashed)
 {
 	if (!prehashed)
 		keccak((const uint8_t *)in, len, spad.as_byte(), 200);
@@ -323,7 +354,7 @@ void cn_slow_hash<MEMORY,ITER,VERSION>::hardware_hash(const void* in, size_t len
 		al0 ^= cl;
 		idx0 = al0;
 		
-		if(VERSION > 0)
+		if(POWVER > 0)
 		{
 			int64_t n  = scratchpad_ptr(idx0).as_qword(0);
 			int32_t d  = scratchpad_ptr(idx0).as_dword(2);
@@ -358,4 +389,3 @@ template class cn_slow_hash<2*1024*1024, 0x80000, 0>;
 template class cn_slow_hash<4*1024*1024, 0x40000, 1>;
 
 #endif
-

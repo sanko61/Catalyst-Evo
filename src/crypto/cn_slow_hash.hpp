@@ -1,3 +1,34 @@
+// Copyright (c) 2017, SUMOKOIN
+//
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without modification, are
+// permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice, this list of
+//    conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list
+//    of conditions and the following disclaimer in the documentation and/or other
+//    materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors may be
+//    used to endorse or promote products derived from this software without specific
+//    prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+// EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+// THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+// STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+// THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Parts of this file are originally copyright (c) 2014-2017, The Monero Project
+// Parts of this file are originally copyright (c) 2012-2013, The Cryptonote developers
+
 #pragma once
 
 #include <inttypes.h>
@@ -5,6 +36,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <boost/align/aligned_alloc.hpp>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <malloc.h>
@@ -90,7 +122,7 @@ public:
 	inline uint8_t& as_byte(size_t i) { return *(reinterpret_cast<uint8_t*>(base_ptr)+i); }
 	inline uint8_t* as_byte() { return reinterpret_cast<uint8_t*>(base_ptr); }
 	inline uint64_t& as_uqword(size_t i) { return *(reinterpret_cast<uint64_t*>(base_ptr)+i); }
-	inline const uint64_t& as_uqword(size_t i) const { return *(reinterpret_cast<uint64_t*>(base_ptr)+i); } 
+	inline const uint64_t& as_uqword(size_t i) const { return *(reinterpret_cast<uint64_t*>(base_ptr)+i); }
 	inline uint64_t* as_uqword() { return reinterpret_cast<uint64_t*>(base_ptr); }
 	inline const uint64_t* as_uqword() const { return reinterpret_cast<uint64_t*>(base_ptr); }
 	inline int64_t& as_qword(size_t i) { return *(reinterpret_cast<int64_t*>(base_ptr)+i); }
@@ -104,23 +136,18 @@ private:
 	void* base_ptr;
 };
 
-template<size_t MEMORY, size_t ITER, size_t VERSION> class cn_slow_hash;
+template<size_t MEMORY, size_t ITER, size_t POWVER> class cn_slow_hash;
 using cn_pow_hash_v1 = cn_slow_hash<2*1024*1024, 0x80000, 0>;
 using cn_pow_hash_v2 = cn_slow_hash<4*1024*1024, 0x40000, 1>;
 
-template<size_t MEMORY, size_t ITER, size_t VERSION>
+template<size_t MEMORY, size_t ITER, size_t POWVER>
 class cn_slow_hash
 {
 public:
 	cn_slow_hash() : borrowed_pad(false)
 	{
-#if !defined(HAS_WIN_INTRIN_API)
-		lpad.set(aligned_alloc(4096, MEMORY));
-		spad.set(aligned_alloc(4096, 4096));
-#else
-		lpad.set(_aligned_malloc(MEMORY, 4096));
-		spad.set(_aligned_malloc(4096, 4096));
-#endif
+		lpad.set(boost::alignment::aligned_alloc(4096, MEMORY));
+		spad.set(boost::alignment::aligned_alloc(4096, 4096));
 	}
 
 	cn_slow_hash (cn_slow_hash&& other) noexcept : lpad(other.lpad.as_byte()), spad(other.spad.as_byte()), borrowed_pad(other.borrowed_pad)
@@ -166,7 +193,7 @@ public:
 	}
 
 	void software_hash(const void* in, size_t len, void* out, bool prehashed);
-	
+
 #if !defined(HAS_INTEL_HW) && !defined(HAS_ARM_HW)
 	inline void hardware_hash(const void* in, size_t len, void* out, bool prehashed) { assert(false); }
 #else
@@ -241,4 +268,3 @@ private:
 
 extern template class cn_slow_hash<2*1024*1024, 0x80000, 0>;
 extern template class cn_slow_hash<4*1024*1024, 0x40000, 1>;
-
