@@ -576,28 +576,26 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
 	return next_difficulty;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-bool Currency::checkProofOfWorkV1(const Block& block, difficulty_type currentDifficulty,
+bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty,
     Crypto::Hash& proofOfWork) const {
-  cn_pow_hash_v2 m_pow_ctx;
   if (CURRENT_BLOCK_MAJOR != block.majorVersion) {
     return false;
   }
  
-  if (!get_block_longhash(m_pow_ctx, block, proofOfWork)) {
+  if (!get_block_longhash(context, block, proofOfWork)) {
     return false;
   }
  
     return check_hash(proofOfWork, currentDifficulty);
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-bool Currency::checkProofOfWorkV2(const Block& block, difficulty_type currentDifficulty,
+bool Currency::checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty,
     Crypto::Hash& proofOfWork) const {
-  cn_pow_hash_v2 m_pow_ctx;
   if (block.majorVersion < NEXT_BLOCK_MAJOR) {
     return false;
   }
  
-  if (!get_block_longhash(m_pow_ctx, block, proofOfWork)) {
+  if (!get_block_longhash(context, block, proofOfWork)) {
     return false;
   }
  
@@ -632,14 +630,14 @@ bool Currency::checkProofOfWorkV2(const Block& block, difficulty_type currentDif
     return true;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-bool Currency::checkProofOfWork(const Block& block, difficulty_type currentDifficulty, Crypto::Hash& proofOfWork) const {
+bool Currency::checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty, Crypto::Hash& proofOfWork) const {
   switch (block.majorVersion) {
   case CURRENT_BLOCK_MAJOR:
-  return checkProofOfWorkV1(block, currentDifficulty, proofOfWork);
+  return checkProofOfWorkV1(context, block, currentDifficulty, proofOfWork);
  
   case NEXT_BLOCK_MAJOR:
   case NEXT_BLOCK_MAJOR_0:
-  return checkProofOfWorkV2(block, currentDifficulty, proofOfWork);
+  return checkProofOfWorkV2(context, block, currentDifficulty, proofOfWork);
   }
  
   logger(ERROR, BRIGHT_RED) << "Unknown block major version: " << block.majorVersion << "." << block.minorVersion;
