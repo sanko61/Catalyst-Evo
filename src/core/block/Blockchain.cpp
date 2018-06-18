@@ -720,13 +720,7 @@ uint64_t Blockchain::getCoinsInCirculation() {
 }
 
 uint8_t Blockchain::getBlockMajorVersionForHeight(uint32_t height) const {
-  if (height > m_upgradeDetectorv3.upgradeHeight()) {
-    return m_upgradeDetectorv3.targetVersion();
-  } else if (height > m_upgradeDetectorv2.upgradeHeight()) {
-    return m_upgradeDetectorv2.targetVersion();
-  } else {
-    return CURRENT_BLOCK_MAJOR;
-  }
+  return height > m_upgradeDetector.upgradeHeight() ? m_upgradeDetector.targetVersion() : CURRENT_BLOCK_MAJOR;
 }
 
 uint64_t Blockchain::coinsEmittedAtHeight(uint64_t height) {
