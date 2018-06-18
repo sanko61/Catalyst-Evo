@@ -494,7 +494,7 @@ bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
     return false;
   }
 
-  cn_slow_hash(context, bd.data(), bd.size(), res);
+  cn_slow_hash(context, bd.data(), bd.size(), res, b.majorVersion);
 return true;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
