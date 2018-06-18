@@ -513,7 +513,7 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
   return Common::fromString(strAmount, amount);
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<uint64_t> timestamps,
+difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps,
   std::vector<difficulty_type> cumulativeDifficulties) const {
     // LWMA difficulty algorithm
     // Copyright (c) 2017-2018 Zawy
