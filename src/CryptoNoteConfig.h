@@ -21,7 +21,7 @@ const uint64_t MONEY_SUPPLY                                  = UINT64_C(21000000
 
 const size_t   CRYPTONOTE_COIN_VERSION                       = 1;
 
-const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
+const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 30000;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1000000; //size of block (bytes) after which reward for block calculated using block size
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2      = 1000000;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1      = 100000;
