@@ -1,18 +1,6 @@
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include "CryptoNoteConfig.h"
-
 #pragma once
- 
- namespace CryptoNote
- {
 
-namespace
-	{
-		boost::uuids::uuid name;
-		boost::uuids::name_generator gen(name);
-		boost::uuids::uuid u = gen(GENESIS_COINBASE_TX_HEX);
-	}
-	const static boost::uuids::uuid CRYPTONOTE_NETWORK = u;
+namespace CryptoNote
+{
+  const static boost::uuids::uuid CRYPTONOTE_NETWORK = { { 0x69, 0x6B, 0x4B, 0xA0, 0x69, 0x6B, 0xB0, 0xC3, 0xA8, 0x4D, 0x2B, 0x2B, 0x19, 0xB0, 0xB1, 0x42 } };
 }

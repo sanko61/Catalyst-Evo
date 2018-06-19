@@ -260,7 +260,7 @@ namespace CryptoNote
   bool miner::find_nonce_for_given_block(Crypto::cn_context &context, Block& bl, const difficulty_type& diffic) {
 
     unsigned nthreads = std::thread::hardware_concurrency();
-  
+
     if (nthreads > 0 && diffic > 5) {
       std::vector<std::future<void>> threads(nthreads);
       std::atomic<uint32_t> foundNonce;

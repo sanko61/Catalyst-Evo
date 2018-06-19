@@ -90,7 +90,15 @@ using CryptoNote::ISerializer;
   struct COMMAND_RPC_STORE
   {
     typedef CryptoNote::EMPTY_STRUCT request;
-    typedef CryptoNote::EMPTY_STRUCT response;
+    struct response
+    {
+	bool stored;
+
+	void serialize(ISerializer& s)
+	{
+		KV_MEMBER(stored)
+	}
+     };
   };
 
   struct transaction_messages {
@@ -129,6 +137,76 @@ using CryptoNote::ISerializer;
         KV_MEMBER(tx_messages);
       }
     };
+  };
+
+  /* Command: stop */
+  struct COMMAND_RPC_STOP 
+  {
+    typedef CryptoNote::EMPTY_STRUCT request;
+    typedef CryptoNote::EMPTY_STRUCT response;
+  };
+
+  /* Command: get transaction 
+  struct COMMAND_RPC_GET_TRANSACTION
+  {
+    struct request
+    {
+	std::string tx_hash;
+
+	void serialize(ISerializer& s)
+	{
+		KV_MEMBER(tx_hash)
+	}
+    };
+        struct response
+	{
+		Transfer transaction_details;
+		std::list<transfer_destination> destinations;
+
+		void serialize(ISerializer& s)
+		{
+			KV_MEMBER(transaction_details)
+			KV_MEMBER(destinations)
+		}
+	};
+  };
+
+  /* Command: query_key */
+  struct COMMAND_RPC_QUERY_KEY
+  {
+    struct request
+   {
+	std::string key_type;
+
+	void serialize(ISerializer& s)
+	{
+		KV_MEMBER(key_type)
+	}
+    };
+	struct response
+	{
+		std::string key;
+
+		void serialize(ISerializer& s)
+		{
+			KV_MEMBER(key)
+		}
+	};
+  };
+
+  /* Command: paymentid */
+  struct COMMAND_RPC_GEN_PAYMENT_ID
+  {
+	typedef CryptoNote::EMPTY_STRUCT request;
+	struct response
+	{
+	std::string payment_id;
+
+	void serialize(ISerializer& s)
+	{
+		KV_MEMBER(payment_id)
+	}
+     };
   };
 
   struct payment_details

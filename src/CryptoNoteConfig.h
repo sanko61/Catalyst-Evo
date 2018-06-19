@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
+#include <limits>
+#include <initializer_list>
 #include "contrib.hpp"
 
 namespace CryptoNote {

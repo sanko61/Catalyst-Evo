@@ -256,11 +256,10 @@ bool DaemonCommandsHandler::print_stat(const std::vector<std::string>& args) {
     " (" << currency.formatAmount(calculatePercent(currency, totalCoinsOnDeposits, totalCoinsInNetwork)) << "%)" << std::endl;
   std::cout << "Amount of active coins:  " << currency.formatAmount(amountOfActiveCoins) <<
     " (" << currency.formatAmount(calculatePercent(currency, amountOfActiveCoins, totalCoinsInNetwork)) << "%)" << std::endl;
-  std::cout << "Total Minting paid: 5000" << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
-  std::cout << "Block Parent: 1" /*<< currency.formatAmount(m_core.depositInterestAtHeight(height))*/ << std::endl;
-  std::cout << "Child Block: 700" /*<< currency.formatAmount(m_core.depositInterestAtHeight(height))*/ << std::endl;
-  std::cout << "Pub Signature key: e66b4873374775913ac08a516521db694b133bb990442c3b9607c12734011034" /*<< currency.formatAmount(m_core.depositInterestAtHeight(height))*/ << std::endl;
-  std::cout << "Key-Merchant: e81229ada582bb439b0094d42225a51eda342229ea91d4008180f30c4cec03ad" /*<< currency.formatAmount(m_core.depositInterestAtHeight(height))*/ << std::endl;
+  std::cout << "Total Minting paid: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Block Parent: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Child Block: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Ring Signature key: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
 
   return true;
 }

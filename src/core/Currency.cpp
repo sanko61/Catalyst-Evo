@@ -128,15 +128,15 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
       std::cout << "Genesis block reward: " << baseReward << std::endl;
    }
    // Tail emission
-   if ((height >= 2) || (height == 300000)){
-      uint64_t bad_tail_emission_reward = uint64_t(70000000000);
+   if ((height >= 2) || (height == 1000)){
+      uint64_t bad_tail_emission_reward = uint64_t(700000000);
    if (alreadyGeneratedCoins + bad_tail_emission_reward <= m_moneySupply || baseReward < bad_tail_emission_reward)
    {
       baseReward = bad_tail_emission_reward;
       std::cout << "Found block reward: " << baseReward << std::endl;
    }
    }
-   if (height > 300000) {
+   if (height > 1000) {
       uint64_t bad_tail_emission_reward = uint64_t(1000000000);
    if (alreadyGeneratedCoins + bad_tail_emission_reward >= m_moneySupply || baseReward > bad_tail_emission_reward)
    {
@@ -513,7 +513,7 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
   return Common::fromString(strAmount, amount);
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps,
+difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<uint64_t> timestamps,
   std::vector<difficulty_type> cumulativeDifficulties) const {
     // LWMA difficulty algorithm
     // Copyright (c) 2017-2018 Zawy

@@ -97,7 +97,11 @@ namespace CryptoNote
     bool sweep_dust(const std::vector<std::string> &args);
 
     bool ask_wallet_create_if_needed();
-    std::string resolveAlias(const std::string& aliasUrl);
+
+#ifndef __ANDROID__
+ 	std::string resolveAlias(const std::string& aliasUrl);
+ 	bool fetch_dns_txt(const std::string domain, std::string &record);
+#endif
 
     void printConnectionError() const;
 

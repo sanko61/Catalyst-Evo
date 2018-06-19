@@ -1,13 +1,3 @@
-/***********************************************************************
-**
-** Implementation of the Skein hash function.
-**
-** Source code author: Doug Whiting, 2008.
-**
-** This algorithm and source code is released to the public domain.
-** 
-************************************************************************/
-
 #define  SKEIN_PORT_CODE /* instantiate any code in skein_port.h */
 
 #include <stddef.h>                          /* get size_t definition */

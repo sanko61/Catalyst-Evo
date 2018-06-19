@@ -138,7 +138,7 @@ WalletLegacy::~WalletLegacy() {
   m_blockchainSync.removeObserver(this);
   m_blockchainSync.stop();
   m_asyncContextCounter.waitAsyncContextsFinish();
-  m_sender.release();
+  m_sender.reset();
 }
 
 void WalletLegacy::addObserver(IWalletLegacyObserver* observer) {
@@ -300,7 +300,7 @@ void WalletLegacy::shutdown() {
   m_blockchainSync.stop();
   m_asyncContextCounter.waitAsyncContextsFinish();
 
-  m_sender.release();
+  m_sender.reset();
    
   {
     std::unique_lock<std::mutex> lock(m_cacheMutex);

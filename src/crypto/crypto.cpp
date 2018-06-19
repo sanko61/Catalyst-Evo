@@ -1,20 +1,3 @@
-// Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers, The Karbowanec developers
-//
-// This file is part of Bytecoin.
-//
-// Bytecoin is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Bytecoin is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
-
 #include <alloca.h>
 #include <cassert>
 #include <cstddef>
@@ -41,19 +24,19 @@ namespace Crypto {
   }
 
   mutex random_lock;
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   static inline void random_scalar(EllipticCurveScalar &res) {
     unsigned char tmp[64];
     generate_random_bytes(64, tmp);
     sc_reduce(tmp);
     memcpy(&res, tmp, 32);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   static inline void hash_to_scalar(const void *data, size_t length, EllipticCurveScalar &res) {
     cn_fast_hash(data, length, reinterpret_cast<Hash &>(res));
     sc_reduce32(reinterpret_cast<unsigned char*>(&res));
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::generate_keys(PublicKey &pub, SecretKey &sec) {
     lock_guard<mutex> lock(random_lock);
     ge_p3 point;
@@ -61,7 +44,7 @@ namespace Crypto {
     ge_scalarmult_base(&point, reinterpret_cast<unsigned char*>(&sec));
     ge_p3_tobytes(reinterpret_cast<unsigned char*>(&pub), &point);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::generate_deterministic_keys(PublicKey &pub, SecretKey &sec, SecretKey& second) {
     lock_guard<mutex> lock(random_lock);
     ge_p3 point;
@@ -70,7 +53,7 @@ namespace Crypto {
     ge_scalarmult_base(&point, reinterpret_cast<unsigned char*>(&sec));
     ge_p3_tobytes(reinterpret_cast<unsigned char*>(&pub), &point);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   SecretKey crypto_ops::generate_m_keys(PublicKey &pub, SecretKey &sec, const SecretKey& recovery_key, bool recover) {
     lock_guard<mutex> lock(random_lock);
     ge_p3 point;
@@ -90,13 +73,12 @@ namespace Crypto {
 
     return rng;
   }
-
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::check_key(const PublicKey &key) {
     ge_p3 point;
     return ge_frombytes_vartime(&point, reinterpret_cast<const unsigned char*>(&key)) == 0;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::secret_key_to_public_key(const SecretKey &sec, PublicKey &pub) {
     ge_p3 point;
     if (sc_check(reinterpret_cast<const unsigned char*>(&sec)) != 0) {
@@ -106,7 +88,7 @@ namespace Crypto {
     ge_p3_tobytes(reinterpret_cast<unsigned char*>(&pub), &point);
     return true;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::generate_key_derivation(const PublicKey &key1, const SecretKey &key2, KeyDerivation &derivation) {
     ge_p3 point;
     ge_p2 point2;
@@ -121,7 +103,7 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&derivation), &point2);
     return true;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   static void derivation_to_scalar(const KeyDerivation &derivation, size_t output_index, EllipticCurveScalar &res) {
     struct {
       KeyDerivation derivation;
@@ -133,7 +115,7 @@ namespace Crypto {
     assert(end <= buf.output_index + sizeof buf.output_index);
     hash_to_scalar(&buf, end - reinterpret_cast<char *>(&buf), res);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   static void derivation_to_scalar(const KeyDerivation &derivation, size_t output_index, const uint8_t* suffix, size_t suffixLength, EllipticCurveScalar &res) {
     assert(suffixLength <= 32);
     struct {
@@ -148,7 +130,7 @@ namespace Crypto {
     memcpy(end, suffix, suffixLength);
     hash_to_scalar(&buf, bufSize + suffixLength, res);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::derive_public_key(const KeyDerivation &derivation, size_t output_index,
     const PublicKey &base, PublicKey &derived_key) {
     EllipticCurveScalar scalar;
@@ -168,7 +150,7 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&derived_key), &point5);
     return true;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::derive_public_key(const KeyDerivation &derivation, size_t output_index,
     const PublicKey &base, const uint8_t* suffix, size_t suffixLength, PublicKey &derived_key) {
     EllipticCurveScalar scalar;
@@ -188,7 +170,7 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&derived_key), &point5);
     return true;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::underive_public_key_and_get_scalar(const KeyDerivation &derivation, size_t output_index,
     const PublicKey &derived_key, PublicKey &base, EllipticCurveScalar &hashed_derivation) {
     ge_p3 point1;
@@ -207,7 +189,7 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&base), &point5);
     return true;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::derive_secret_key(const KeyDerivation &derivation, size_t output_index,
     const SecretKey &base, SecretKey &derived_key) {
     EllipticCurveScalar scalar;
@@ -215,7 +197,7 @@ namespace Crypto {
     derivation_to_scalar(derivation, output_index, scalar);
     sc_add(reinterpret_cast<unsigned char*>(&derived_key), reinterpret_cast<const unsigned char*>(&base), reinterpret_cast<unsigned char*>(&scalar));
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::derive_secret_key(const KeyDerivation &derivation, size_t output_index,
     const SecretKey &base, const uint8_t* suffix, size_t suffixLength, SecretKey &derived_key) {
     EllipticCurveScalar scalar;
@@ -223,8 +205,7 @@ namespace Crypto {
     derivation_to_scalar(derivation, output_index, suffix, suffixLength, scalar);
     sc_add(reinterpret_cast<unsigned char*>(&derived_key), reinterpret_cast<const unsigned char*>(&base), reinterpret_cast<unsigned char*>(&scalar));
   }
-
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::underive_public_key(const KeyDerivation &derivation, size_t output_index,
     const PublicKey &derived_key, PublicKey &base) {
     EllipticCurveScalar scalar;
@@ -244,7 +225,7 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&base), &point5);
     return true;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::underive_public_key(const KeyDerivation &derivation, size_t output_index,
     const PublicKey &derived_key, const uint8_t* suffix, size_t suffixLength, PublicKey &base) {
     EllipticCurveScalar scalar;
@@ -265,14 +246,13 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&base), &point5);
     return true;
   }
-
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   struct s_comm {
     Hash h;
     EllipticCurvePoint key;
     EllipticCurvePoint comm;
   };
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::generate_signature(const Hash &prefix_hash, const PublicKey &pub, const SecretKey &sec, Signature &sig) {
     lock_guard<mutex> lock(random_lock);
     ge_p3 tmp3;
@@ -296,7 +276,7 @@ namespace Crypto {
     hash_to_scalar(&buf, sizeof(s_comm), reinterpret_cast<EllipticCurveScalar&>(sig));
     sc_mulsub(reinterpret_cast<unsigned char*>(&sig) + 32, reinterpret_cast<unsigned char*>(&sig), reinterpret_cast<const unsigned char*>(&sec), reinterpret_cast<unsigned char*>(&k));
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::check_signature(const Hash &prefix_hash, const PublicKey &pub, const Signature &sig) {
     ge_p2 tmp2;
     ge_p3 tmp3;
@@ -317,7 +297,7 @@ namespace Crypto {
     sc_sub(reinterpret_cast<unsigned char*>(&c), reinterpret_cast<unsigned char*>(&c), reinterpret_cast<const unsigned char*>(&sig));
     return sc_isnonzero(reinterpret_cast<unsigned char*>(&c)) == 0;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   static void hash_to_ec(const PublicKey &key, ge_p3 &res) {
     Hash h;
     ge_p2 point;
@@ -327,7 +307,7 @@ namespace Crypto {
     ge_mul8(&point2, &point);
     ge_p1p1_to_p3(&res, &point2);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   KeyImage crypto_ops::scalarmultKey(const KeyImage & P, const KeyImage & a) {
     ge_p3 A;
     ge_p2 R;
@@ -338,7 +318,7 @@ namespace Crypto {
     ge_tobytes(reinterpret_cast<unsigned char*>(&aP), &R);
     return aP;
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::hash_data_to_ec(const uint8_t* data, std::size_t len, PublicKey& key) {
     Hash h;
     ge_p2 point;
@@ -349,7 +329,7 @@ namespace Crypto {
     ge_p1p1_to_p2(&point, &point2);
     ge_tobytes(reinterpret_cast<unsigned char*>(&key), &point);
   }
-  
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::generate_key_image(const PublicKey &pub, const SecretKey &sec, KeyImage &image) {
     ge_p3 point;
     ge_p2 point2;
@@ -358,7 +338,7 @@ namespace Crypto {
     ge_scalarmult(&point2, reinterpret_cast<const unsigned char*>(&sec), &point);
     ge_tobytes(reinterpret_cast<unsigned char*>(&image), &point2);
   }
-  
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::generate_incomplete_key_image(const PublicKey &pub, EllipticCurvePoint &incomplete_key_image) {
     ge_p3 point;
     hash_to_ec(pub, point);
@@ -368,18 +348,18 @@ namespace Crypto {
 #ifdef _MSC_VER
 #pragma warning(disable: 4200)
 #endif
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   struct rs_comm {
     Hash h;
     struct {
       EllipticCurvePoint a, b;
     } ab[];
   };
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   static inline size_t rs_comm_size(size_t pubs_count) {
     return sizeof(rs_comm) + pubs_count * sizeof(((rs_comm*)0)->ab[0]);
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   void crypto_ops::generate_ring_signature(const Hash &prefix_hash, const KeyImage &image,
     const PublicKey *const *pubs, size_t pubs_count,
     const SecretKey &sec, size_t sec_index,
@@ -441,7 +421,7 @@ namespace Crypto {
     sc_sub(reinterpret_cast<unsigned char*>(&sig[sec_index]), reinterpret_cast<unsigned char*>(&h), reinterpret_cast<unsigned char*>(&sum));
     sc_mulsub(reinterpret_cast<unsigned char*>(&sig[sec_index]) + 32, reinterpret_cast<unsigned char*>(&sig[sec_index]), reinterpret_cast<const unsigned char*>(&sec), reinterpret_cast<unsigned char*>(&k));
   }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
   bool crypto_ops::check_ring_signature(const Hash &prefix_hash, const KeyImage &image,
     const PublicKey *const *pubs, size_t pubs_count,
     const Signature *sig) {
@@ -481,4 +461,5 @@ namespace Crypto {
     sc_sub(reinterpret_cast<unsigned char*>(&h), reinterpret_cast<unsigned char*>(&h), reinterpret_cast<unsigned char*>(&sum));
     return sc_isnonzero(reinterpret_cast<unsigned char*>(&h)) == 0;
   }
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 }

@@ -1,13 +1,3 @@
-/* hash.c     April 2012
- * Groestl ANSI C code optimised for 32-bit machines
- * Author: Thomas Krinninger
- *
- *  This work is based on the implementation of
- *          Soeren S. Thomsen and Krystian Matusiewicz
- *          
- *
- */
-
 #include "groestl.h"
 #include "groestl_tables.h"
 
