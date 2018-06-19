@@ -720,8 +720,7 @@ uint64_t Blockchain::getCoinsInCirculation() {
 }
 
 uint8_t Blockchain::getBlockMajorVersionForHeight(uint32_t height) const {
-  return height > m_upgradeDetectorv3.upgradeHeight() ? m_upgradeDetectorv2.targetVersion() : CURRENT_BLOCK_MAJOR;
-  }
+  return height > m_upgradeDetectorv2.upgradeHeight() ? m_upgradeDetectorv3.targetVersion() :  CURRENT_BLOCK_MAJOR;
 }
 
 uint64_t Blockchain::coinsEmittedAtHeight(uint64_t height) {
@@ -893,7 +892,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   uint32_t block_index = m_blocks.size();
   uint8_t block_major_version = getBlockMajorVersionForHeight(block_index + 1);
 
-  return m_currency.nextDifficulty(BlockMajorVersion, timestamps, commulative_difficulties);
+  return m_currency.nextDifficulty(block_major_version, timestamps, commulative_difficulties);
 }
 
 bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) {
