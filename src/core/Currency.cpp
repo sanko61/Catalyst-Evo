@@ -129,7 +129,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    }
    // Tail emission
    if ((height >= 2) || (height == 300000)){
-      uint64_t bad_tail_emission_reward = uint64_t(700000000000);
+      uint64_t bad_tail_emission_reward = uint64_t(70000000000);
    if (alreadyGeneratedCoins + bad_tail_emission_reward <= m_moneySupply || baseReward < bad_tail_emission_reward)
    {
       baseReward = bad_tail_emission_reward;
