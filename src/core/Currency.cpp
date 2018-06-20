@@ -629,63 +629,64 @@ difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<
 		std::vector<difficulty_type> cumulativeDifficulties) const {
 
 		// LWMA difficulty algorithm
-		// Copyright (c) 2017-2018 Zawy
-		// MIT license http://www.opensource.org/licenses/mit-license.php.
-		// This is an improved version of Tom Harding's (Deger8) "WT-144"  
-		// Karbowanec, Masari, Bitcoin Gold, and Bitcoin Cash have contributed.
-		// See https://github.com/zawy12/difficulty-algorithms/issues/1 for other algos.
-		// Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
-		// T= target_solvetime;
-		// N = int(45 * (600 / T) ^ 0.3));
+    // Copyright (c) 2017-2018 Zawy
+    // MIT license http://www.opensource.org/licenses/mit-license.php.
+    // This is an improved version of Tom Harding's (Deger8) "WT-144"  
+    // Karbowanec, Masari, Bitcoin Gold, and Bitcoin Cash have contributed.
+    // See https://github.com/zawy12/difficulty-algorithms/issues/1 for other algos.
+    // Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
+    // T= target_solvetime;
+    // N = int(45 * (600 / T) ^ 0.3));
+ 
+    const int64_t T = static_cast<int64_t>(m_difficultyTarget);
+    size_t N = m_difficultyWindow;
 
-		const int64_t T = static_cast<int64_t>(m_difficultyTarget);
-		size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_V3;
+	// return a difficulty of 1 for first 3 blocks if it's the start of the chain
+	if (timestamps.size() < 4) {
+		return 1;
+	}
+	// otherwise, use a smaller N if the start of the chain is less than N+1
+	else if (timestamps.size() < N + 1) {
+		N = timestamps.size() - 1;
+	}
+	else if (timestamps.size() > N + 1) {
+		timestamps.erase(timestamps.begin(), timestamps.end() - N - 1);
+		cumulativeDifficulties.erase(cumulativeDifficulties.begin(), cumulativeDifficulties.end() - N - 1);
+	}
 
-		// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-		if (timestamps.size() < 4) {
-			return 1;
-		}
-		// otherwise, use a smaller N if the start of the chain is less than N+1
-		else if (timestamps.size() < N + 1) {
-			N = timestamps.size() - 1;
-		}
-		else if (timestamps.size() > N + 1) {
-			timestamps.erase(timestamps.begin(), timestamps.end() - N - 1);
-			cumulativeDifficulties.erase(cumulativeDifficulties.begin(), cumulativeDifficulties.end() - N - 1);
-		}
+	// To get an average solvetime to within +/- ~0.1%, use an adjustment factor.
+	const double adjust = 0.998;
+	// The divisor k normalizes LWMA.
+	const double k = N * (N + 1) / 2;
 
-		// To get an average solvetime to within +/- ~0.1%, use an adjustment factor.
-		const double adjust = 0.998;
-		// The divisor k normalizes LWMA.
-		const double k = N * (N + 1) / 2;
+	double LWMA(0), sum_inverse_D(0), harmonic_mean_D(0), nextDifficulty(0);
+	int64_t solveTime(0);
+	uint64_t difficulty(0), next_difficulty(0);
 
-		double LWMA(0), sum_inverse_D(0), harmonic_mean_D(0), nextDifficulty(0);
-		int64_t solveTime(0);
-		uint64_t difficulty(0), next_difficulty(0);
+	// Loop through N most recent blocks.
+	for (size_t i = 1; i <= N; i++) {
+		solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
+		solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-6 * T)));
+		difficulty = cumulativeDifficulties[i] - cumulativeDifficulties[i - 1];
+		LWMA += (int64_t)(solveTime * i) / k;
+		sum_inverse_D += 1 / static_cast<double>(difficulty);
+	}
 
-		// Loop through N most recent blocks.
-		for (size_t i = 1; i <= N; i++) {
-			solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
-			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-6 * T)));
-			difficulty = cumulativeDifficulties[i] - cumulativeDifficulties[i - 1];
-			LWMA += (int64_t)(solveTime * i) / k;
-			sum_inverse_D += 1 / static_cast<double>(difficulty);
-		}
+	// Keep LWMA sane in case something unforeseen occurs.
+	if (static_cast<int64_t>(boost::math::round(LWMA)) < T / 20)
+		LWMA = static_cast<double>(T) / 20;
 
-		// Keep LWMA sane in case something unforeseen occurs.
-		if (static_cast<int64_t>(boost::math::round(LWMA)) < T / 20)
-			LWMA = static_cast<double>(T) / 20;
+	harmonic_mean_D = N / sum_inverse_D * adjust;
+	nextDifficulty = harmonic_mean_D * T / LWMA;
+	next_difficulty = static_cast<uint64_t>(nextDifficulty);
 
-		harmonic_mean_D = N / sum_inverse_D * adjust;
-		nextDifficulty = harmonic_mean_D * T / LWMA;
-		next_difficulty = static_cast<uint64_t>(nextDifficulty);
-		
-		// minimum limit
+	// minimum limit
 	// in production set larger
 	//if (!isTestnet() && next_difficulty < 1000) {
 		//next_difficulty = 1000;
 	//}
-		return next_difficulty;
+
+	return next_difficulty;
 	}	
 
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
