@@ -18,7 +18,7 @@ public:
   bool advanceHeight(uint32_t height);
   const AccountKeys& getKeys() const;
   bool addTransaction(const TransactionBlockInfo& blockInfo, const ITransactionReader& tx,
-                      const std::vector<TransactionOutputInformationIn>& transfers, std::vector<std::string>&& messages);
+                      const std::vector<TransactionOutputInformationIn>& transfers);
 
   void deleteUnconfirmedTransaction(const Crypto::Hash& transactionHash);
   void markTransactionConfirmed(const TransactionBlockInfo& block, const Crypto::Hash& transactionHash, const std::vector<uint32_t>& globalIndices);

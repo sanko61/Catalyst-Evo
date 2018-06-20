@@ -493,7 +493,7 @@ void TransfersConsumer::processOutputs(const TransactionBlockInfo& blockInfo, Tr
     }
   } else {
     auto messages = get_messages_from_extra(tx.getExtra(), tx.getTransactionPublicKey(), &sub.getKeys().spendSecretKey);
-    updated = sub.addTransaction(blockInfo, tx, transfers, std::move(messages));
+    updated = sub.addTransaction(blockInfo, tx, transfers);
     contains = updated;
   }
 }

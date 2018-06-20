@@ -49,8 +49,7 @@ const AccountKeys& TransfersSubscription::getKeys() const {
 }
 
 bool TransfersSubscription::addTransaction(const TransactionBlockInfo& blockInfo, const ITransactionReader& tx,
-                                           const std::vector<TransactionOutputInformationIn>& transfersList,
-                                           std::vector<std::string>&& messages) {
+                                           const std::vector<TransactionOutputInformationIn>& transfersList) {
   std::vector<TransactionOutputInformation> unlockedTransfers;
 
   bool added = transfers.addTransaction(blockInfo, tx, transfersList);

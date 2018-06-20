@@ -24,7 +24,6 @@ void serialize(TransactionInformation& ti, CryptoNote::ISerializer& s) {
   s(ti.totalAmountOut, "");
   s(ti.extra, "");
   s(ti.paymentId, "");
-  s(ti.messages, "");
 }
 
 const uint32_t TRANSFERS_CONTAINER_STORAGE_VERSION = 1;

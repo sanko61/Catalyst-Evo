@@ -242,6 +242,12 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
 {
 	res.transfers.clear();
 	size_t transactionsCount = m_wallet.getTransactionCount();
+        uint64_t bc_height;
+	try {
+		bc_height = m_node.getKnownBlockCount();
+	} catch (std::exception &e) {
+		throw JsonRpc::JsonRpcError(WALLET_RPC_ERROR_CODE_UNKNOWN_ERROR, std::string("Failed to get blockchain height: ") + e.what());
+	}
 	for (size_t trantransactionNumber = 0; trantransactionNumber < transactionsCount; ++trantransactionNumber)
 	{
 		WalletLegacyTransaction txInfo;
@@ -268,6 +274,7 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
 		transfer.blockIndex		 = txInfo.blockHeight;
 		transfer.unlockTime		 = txInfo.unlockTime;
 		transfer.paymentId		 = "";
+                transfer.confirmations = bc_height - txInfo.blockHeight;
 
 		std::vector<uint8_t> extraVec;
 		extraVec.reserve(txInfo.extra.size());
