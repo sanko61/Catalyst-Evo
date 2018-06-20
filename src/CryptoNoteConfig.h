@@ -44,8 +44,9 @@ static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED
 
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
-const size_t   DIFFICULTY_WINDOW_V2                          = 60; // blocks
-const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1; // blocks
+const size_t   DIFFICULTY_WINDOW_V2                          = 17; // blocks
+const size_t   DIFFICULTY_WINDOW_V3                          = 60; // blocks
+const size_t   DIFFICULTY_WINDOW_V4                          = 60 + 1; // blocks
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 500 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 22000; // ~1 month
