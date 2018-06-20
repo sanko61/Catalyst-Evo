@@ -55,12 +55,15 @@ private:
   bool print_cn(const std::vector<std::string>& args);
   bool print_bc(const std::vector<std::string>& args);
   bool print_bci(const std::vector<std::string>& args);
+  bool print_height(const std::vector<std::string>& args);
   bool set_log(const std::vector<std::string>& args);
   bool print_block(const std::vector<std::string>& args);
   bool print_tx(const std::vector<std::string>& args);
   bool print_pool(const std::vector<std::string>& args);
   bool print_pool_sh(const std::vector<std::string>& args);
+  bool print_pool_count(const std::vector<std::string>& args);
   bool print_stat(const std::vector<std::string>& args);
   bool start_mining(const std::vector<std::string>& args);
   bool stop_mining(const std::vector<std::string>& args);
+  bool print_diff(const std::vector<std::string>& args);
 };

@@ -90,10 +90,8 @@ void HttpServer::acceptLoop() {
     auto addr = std::pair<System::Ipv4Address, uint16_t>(static_cast<System::Ipv4Address>(0), 0);
 	try {
 		addr = connection.getPeerAddressAndPort();
-	}
-	catch (std::runtime_error&) {
-		addr.first = static_cast<System::Ipv4Address>(0);
-		addr.second = 0;
+	} catch (std::runtime_error&) {
+		logger(WARNING) << "Could not get IP of connection";
 	}
 
     logger(DEBUGGING) << "Incoming connection from " << addr.first.toDottedDecimal() << ":" << addr.second;

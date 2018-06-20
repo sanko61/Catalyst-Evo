@@ -1,4 +1,4 @@
-#include "SimpleWallet.h"
+#include "merch_wallet.h"
 
 #include <ctime>
 #include <fstream>
@@ -673,6 +673,10 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
      std::cout << "I - import wallet from keys\n";
      std::cout << "R - restore backup/paperwallet\n";
      std::cout << "T - import tracking wallet\n";
+     std::cout << "===============================\n";
+     std::cout << "M - generate merchant key\n";
+     std::cout << "C - check api merchant\n";
+     std::cout << "L - reg user to global merch\n";
      std::cout << "E - exit\n";
 		
      char c;

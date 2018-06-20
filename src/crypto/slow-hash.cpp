@@ -17,14 +17,14 @@ namespace Crypto {
   };
 
 #ifdef _WIN32
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
   cn_context::cn_context() {
     data = VirtualAlloc(nullptr, MAP_SIZE, MEM_COMMIT, PAGE_READWRITE);
     if (data == nullptr) {
       throw bad_alloc();
     }
   }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
   cn_context::~cn_context() {
     if (!VirtualFree(data, 0, MEM_RELEASE)) {
       throw bad_alloc();
@@ -32,7 +32,7 @@ namespace Crypto {
   }
 
 #else
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
   cn_context::cn_context() {
 #if !defined(__APPLE__)
     data = mmap(nullptr, MAP_SIZE, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
@@ -50,7 +50,7 @@ namespace Crypto {
     //  throw bad_alloc();
     //}
   }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 #endif
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 }

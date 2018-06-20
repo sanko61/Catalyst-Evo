@@ -1,5 +1,6 @@
 #include "JsonRpc.h"
 #include "HttpClient.h"
+#include "core/trans/TransactionPool.h"
 
 namespace CryptoNote {
 

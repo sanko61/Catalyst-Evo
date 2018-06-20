@@ -653,6 +653,13 @@ std::vector<Transaction> core::getPoolTransactions() {
   return result;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+std::list<CryptoNote::tx_memory_pool::TransactionDetails> core::getMemoryPool() const {
+  //std::list<CryptoNote::tx_memory_pool::TransactionDetails> txs;
+  //m_mempool.getMemoryPool(txs);
+  //return txs;
+	return m_mempool.getMemoryPool();
+}
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::vector<Crypto::Hash> core::buildSparseChain() {
   assert(m_blockchain.getCurrentBlockchainHeight() != 0);
   return m_blockchain.buildSparseChain();

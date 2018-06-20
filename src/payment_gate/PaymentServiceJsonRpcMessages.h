@@ -70,7 +70,7 @@ struct CreateAddress {
   struct Request {
     std::string spendSecretKey;
     std::string spendPublicKey;
-
+    bool reset;
     void serialize(CryptoNote::ISerializer& serializer);
   };
 

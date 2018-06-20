@@ -856,7 +856,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   std::vector<difficulty_type> commulative_difficulties;
   uint8_t BlockMajorVersion = getBlockMajorVersionForHeight(static_cast<uint32_t>(m_blocks.size()));
 
-  if (BlockMajorVersion == CURRENT_BLOCK_MAJOR) {
+  if (BlockMajorVersion == NEXT_BLOCK_MAJOR) {
 
    if (alt_chain.size() < m_currency.difficultyBlocksCount2()) {
      std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
