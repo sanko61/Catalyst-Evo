@@ -512,70 +512,42 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 
   return Common::fromString(strAmount, amount);
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<uint64_t> timestamps,
-  std::vector<difficulty_type> cumulativeDifficulties) const {
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------/
+// LWMA-2 difficulty algorithm (commented version)
+// Copyright (c) 2017-2018 Zawy, MIT License
+// https://github.com/zawy12/difficulty-algorithms/issues/3
+// Bitcoin clones must lower their FTL. 
+// Cryptonote et al coins must make the following changes:
+// Do not sort timestamps.  CN coins must deploy the Jagerman MTP Patch. See:
+// https://github.com/loki-project/loki/pull/26   or
+// https://github.com/wownero/wownero/commit/1f6760533fcec0d84a6bd68369e0ea26716b01e7
 
-		// LWMA difficulty algorithm
-		// Copyright (c) 2017-2018 Zawy
-		// MIT license http://www.opensource.org/licenses/mit-license.php.
-		// This is an improved version of Tom Harding's (Deger8) "WT-144"  
-		// Karbowanec, Masari, Bitcoin Gold, and Bitcoin Cash have contributed.
-		// See https://github.com/zawy12/difficulty-algorithms/issues/1 for other algos.
-		// Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
-		// T= target_solvetime;
-		// N = int(45 * (600 / T) ^ 0.3));
+ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
+   std::vector<difficulty_type> cumulativeDifficulties) const {
 
-		const int64_t T = static_cast<int64_t>(m_difficultyTarget);
-		size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_V3;
+int64_t T    = CryptoNote::parameters::DIFFICULTY_TARGET; // target solvetime seconds
+int64_t N   = CryptoNote::parameters::DIFFICULTY_WINDOW - 1;   
+int64_t FTL = CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT; 
+int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 
-		// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-		if (timestamps.size() < 4) {
-			return 1;
-		}
-		// otherwise, use a smaller N if the start of the chain is less than N+1
-		else if (timestamps.size() < N + 1) {
-			N = timestamps.size() - 1;
-		}
-		else if (timestamps.size() > N + 1) {
-			timestamps.erase(timestamps.begin(), timestamps.end() - N - 1);
-			cumulativeDifficulties.erase(cumulativeDifficulties.begin(), cumulativeDifficulties.end() - N - 1);
-		}
+uint64_t initial_difficulty_guess = 50; 
+if (timestamps.size() <= static_cast<uint64_t>(N) )  {  
+    return initial_difficulty_guess;  
+}
 
-		// To get an average solvetime to within +/- ~0.1%, use an adjustment factor.
-		const double adjust = 0.998;
-		// The divisor k normalizes LWMA.
-		const double k = N * (N + 1) / 2;
+for ( int64_t i = 1; i <= N; i++) {  
+    ST = std::max(-FTL, std::min( (int64_t)(timestamps[i]) - (int64_t)(timestamps[i-1]), 6*T));
+    L +=  ST * i ; 
+    if ( i > N-3 ) { sum_3_ST += ST; }      
+}
+    next_D = ((cumulativeDifficulties[N] - cumulativeDifficulties[0])*T*(N+1)*99)/(100*2*L);
 
-		double LWMA(0), sum_inverse_D(0), harmonic_mean_D(0), nextDifficulty(0);
-		int64_t solveTime(0);
-		uint64_t difficulty(0), next_difficulty(0);
+// implement LWMA-2 changes from LWMA
+prev_D = cumulativeDifficulties[N] - cumulativeDifficulties[N-1];
+if ( sum_3_ST < (8*T)/10) {  next_D = (prev_D*110)/100; }
 
-		// Loop through N most recent blocks.
-		for (size_t i = 1; i <= N; i++) {
-			solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
-			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-6 * T)));
-			difficulty = cumulativeDifficulties[i] - cumulativeDifficulties[i - 1];
-			LWMA += (int64_t)(solveTime * i) / k;
-			sum_inverse_D += 1 / static_cast<double>(difficulty);
-		}
-
-		// Keep LWMA sane in case something unforeseen occurs.
-		if (static_cast<int64_t>(boost::math::round(LWMA)) < T / 20)
-			LWMA = static_cast<double>(T) / 20;
-
-		harmonic_mean_D = N / sum_inverse_D * adjust;
-		nextDifficulty = harmonic_mean_D * T / LWMA;
-		next_difficulty = static_cast<uint64_t>(nextDifficulty);
-		
-		// minimum limit
-	// in production set larger
-	//if (!isTestnet() && next_difficulty < 1000) {
-		//next_difficulty = 1000;
-	//}
-		return next_difficulty;
-	}	
-
+return static_cast<uint64_t>(next_D);
+}
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty,
     Crypto::Hash& proofOfWork) const {
