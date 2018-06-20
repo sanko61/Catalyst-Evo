@@ -93,7 +93,7 @@ const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json"
 } // parameters
 
 const char     CRYPTONOTE_NAME[]                             = "catalyst";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "010a01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101f7b9852808c66d19454d2fceaca839a8d9f906e2de95473b570f355c82d3cf45";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "010a01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121018446d1fdaf9b1c9355487664cf30e5b7289402d1c7dc3f9e936bd380b2d109e7";
 
 const uint32_t GENESIS_NONCE                                 = 70;
 const uint64_t GENESIS_TIMESTAMP                             = 1529201466;
@@ -110,8 +110,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000; // by defa
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 128; // by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         = 1000;
 
-const int      P2P_DEFAULT_PORT                              = 4090;
-const int      RPC_DEFAULT_PORT                              = 4095;
+const int      P2P_DEFAULT_PORT                              = 4190;
+const int      RPC_DEFAULT_PORT                              = 4195;
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                = 1000;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 = 5000;
@@ -129,8 +129,8 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 second
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "FF9507CA55455F37A3B783EE2C5123B8B6A34A0C5CAAE050922C6254161480C1";
 
 const std::initializer_list<const char*> SEED_NODES = {
-  "seed1.catalyst.cash:4090",
-  "seed2.catalyst.cash:4090",
+  "seed1.catalyst.cash:4190",
+  "seed2.catalyst.cash:4190",
   //"seed3.catalyst.cash:4090",
 };
 
