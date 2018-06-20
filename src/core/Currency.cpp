@@ -513,46 +513,62 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
   return Common::fromString(strAmount, amount);
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------/
-// LWMA-2 difficulty algorithm (commented version)
-// Copyright (c) 2017-2018 Zawy, MIT License
-// https://github.com/zawy12/difficulty-algorithms/issues/3
-// Bitcoin clones must lower their FTL. 
-// Cryptonote et al coins must make the following changes:
-// Do not sort timestamps.  CN coins must deploy the Jagerman MTP Patch. See:
-// https://github.com/loki-project/loki/pull/26   or
-// https://github.com/wownero/wownero/commit/1f6760533fcec0d84a6bd68369e0ea26716b01e7
+// LWMA difficulty algorithm
+// Background:  https://github.com/zawy12/difficulty-algorithms/issues/3
+// Copyright (c) 2017-2018 Zawy (pseudocode)
+// MIT license http://www.opensource.org/licenses/mit-license.php
+// Copyright (c) 2018 Wownero Inc., a Monero Enterprise Alliance partner company
+// Copyright (c) 2018 The Karbowanec developers (initial code)
+// Copyright (c) 2018 Haven Protocol (refinements)
+// Degnr8, Karbowanec, Masari, Bitcoin Gold, Bitcoin Candy, and Haven have contributed.
 
  difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
    std::vector<difficulty_type> cumulativeDifficulties) const {
 
 int64_t T    = CryptoNote::parameters::DIFFICULTY_TARGET; // target solvetime seconds
-int64_t N   = CryptoNote::parameters::DIFFICULTY_WINDOW - 1;   
-int64_t FTL = CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT; 
-int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
+int64_t N    = CryptoNote::parameters::DIFFICULTY_WINDOW - 1;   
 
-if (timestamps.size() < 4) {
+  if (timestamps.size() < 4) {
       return 1;
-} else if ( timestamps.size()-1 < N ) {
+  } else if ( timestamps.size()-1 < N ) {
       N = timestamps.size() - 1;
-} else {
+  } else {
       // TODO: put asserts here, so that the difficulty algorithm is never called with an oversized window
       //       OR make this use the last N+1 timestamps and cum_diff, not the first.
       timestamps.resize(N+1);
       cumulativeDifficulties.resize(N+1);
-}
+  }
 
-for ( int64_t i = 1; i <= N; i++) {  
-    ST = std::max(-FTL, std::min( (int64_t)(timestamps[i]) - (int64_t)(timestamps[i-1]), 6*T));
-    L +=  ST * i ; 
-    if ( i > N-3 ) { sum_3_ST += ST; }      
-}
-    next_D = ((cumulativeDifficulties[N] - cumulativeDifficulties[0])*T*(N+1)*99)/(100*2*L);
+  // To get an average solvetime to within +/- ~0.1%, use an adjustment factor.
+    // adjust=0.999 for 80 < N < 120(?)
+    const double adjust = 0.998;
+    // The divisor k normalizes the LWMA sum to a standard LWMA.
+    const double k = N * (N + 1) / 2;
 
-// implement LWMA-2 changes from LWMA
-prev_D = cumulativeDifficulties[N] - cumulativeDifficulties[N-1];
-if ( sum_3_ST < (8*T)/10) {  next_D = (prev_D*110)/100; }
+    double LWMA(0), sum_inverse_D(0), harmonic_mean_D(0), nextDifficulty(0);
+    int64_t solveTime(0);
+    uint64_t difficulty(0), next_difficulty(0);
 
-return static_cast<uint64_t>(next_D);
+    // Loop through N most recent blocks. N is most recently solved block.
+    for (int64_t i = 1; i <= (int64_t)N; i++) {
+      solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
+      solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-7 * T)));
+      difficulty = cumulativeDifficulties[i] - cumulativeDifficulties[i - 1];
+      LWMA += (solveTime * i) / k;
+      sum_inverse_D += 1 / static_cast<double>(difficulty);
+     }
+     harmonic_mean_D = N / sum_inverse_D;
+
+    // Keep LWMA sane in case something unforeseen occurs.
+    if (static_cast<int64_t>(boost::math::round(LWMA)) < T / 20)
+      LWMA = static_cast<double>(T / 20);
+
+    nextDifficulty = harmonic_mean_D * T / LWMA * adjust;
+
+    // No limits should be employed, but this is correct way to employ a 20% symmetrical limit:
+    // nextDifficulty=max(previous_Difficulty*0.8,min(previous_Difficulty/0.8, next_Difficulty));
+    next_difficulty = static_cast<uint64_t>(nextDifficulty);
+    return next_difficulty;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty,
