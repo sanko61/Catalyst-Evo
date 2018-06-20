@@ -530,9 +530,15 @@ int64_t N   = CryptoNote::parameters::DIFFICULTY_WINDOW - 1;
 int64_t FTL = CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT; 
 int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 
-uint64_t initial_difficulty_guess = 0; 
-if (timestamps.size() <= static_cast<uint64_t>(N) )  {  
-    initial_difficulty_guess = 1;  
+if (timestamps.size() < 4) {
+      return 1;
+} else if ( timestamps.size()-1 < N ) {
+      N = timestamps.size() - 1;
+} else {
+      // TODO: put asserts here, so that the difficulty algorithm is never called with an oversized window
+      //       OR make this use the last N+1 timestamps and cum_diff, not the first.
+      timestamps.resize(N+1);
+      cumulative_difficulties.resize(N+1);
 }
 
 for ( int64_t i = 1; i <= N; i++) {  
