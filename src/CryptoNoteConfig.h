@@ -14,7 +14,7 @@ const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 500000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
 const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 9524; // addresses start with "Xa"
-const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 10; //if already 100k height change to 10
+const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 60; //if already 100k height change to 10
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = DIFFICULTY_TARGET * 3;
 const uint64_t CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE           = 10;
 
@@ -94,7 +94,7 @@ const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json"
 } // parameters
 
 const char     CRYPTONOTE_NAME[]                             = "catalyst";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "013c01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101700ec6401221108006ad0c9015ed8557d5042e0b5082bc58c94605758ff308de";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "013c01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101f72608d46fad95a40a78e8b766e19465b12b211fb0215809d17e9ee6136d1d88";
 
 const uint32_t GENESIS_NONCE                                 = 70;
 const uint64_t GENESIS_TIMESTAMP                             = 1529201466;
@@ -111,8 +111,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000; // by defa
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 128; // by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         = 1000;
 
-const int      P2P_DEFAULT_PORT                              = 6090;
-const int      RPC_DEFAULT_PORT                              = 6095;
+const int      P2P_DEFAULT_PORT                              = 4090;
+const int      RPC_DEFAULT_PORT                              = 4095;
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                = 1000;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 = 5000;
@@ -130,9 +130,9 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 second
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "FF9507CA55455F37A3B783EE2C5123B8B6A34A0C5CAAE050922C6254161480C1";
 
 const std::initializer_list<const char*> SEED_NODES = {
-  "seed1.catalyst.cash:6090",
-  "seed2.catalyst.cash:6090",
-  "seed3.catalyst.cash:6090",
+  "seed1.catalyst.cash:4090",
+  "seed2.catalyst.cash:4090",
+  "seed3.catalyst.cash:4090",
 };
 
 struct CheckpointData {
