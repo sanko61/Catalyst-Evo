@@ -650,7 +650,7 @@ std::vector<difficulty_type> cumulativeDifficulties) const {
     int64_t  FTL = CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT; // FTL=3xT
     int64_t  L(0), ST, sum_3_ST(0), next_D, prev_D; 
 
-    uint64_t initial_difficulty_guess = 100; // Dev must set.  Guess low.
+    uint64_t initial_difficulty_guess = 0; // Dev must set.  Guess low.
     if (timestamps.size() <= static_cast<uint64_t>(N)) {   
          return initial_difficulty_guess;    
     }
@@ -666,7 +666,7 @@ std::vector<difficulty_type> cumulativeDifficulties) const {
 prev_D = cumulativeDifficulties[N] - cumulativeDifficulties[N-1];
 if ( sum_3_ST < (8*T)/10) {  next_D = (prev_D*110)/100; }
 
-    return static_cast<uint64_t>(next_D);
+    return next_difficulty;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty,
