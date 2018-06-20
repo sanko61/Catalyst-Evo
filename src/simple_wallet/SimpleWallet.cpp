@@ -1836,13 +1836,17 @@ std::string simple_wallet::getFeeAddress() {
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::transfer(const std::vector<std::string> &args) {
+  if (m_trackingWallet){
+    fail_msg_writer() << "This is tracking wallet. Spending is impossible.";
+    return true;
+  }
   try {
     TransferCommand cmd(m_currency);
 
-    if (!cmd.parseArguments(logger, args))
-      return true;
+	if (!cmd.parseArguments(logger, args))
+		return true;
 
-    #ifndef __ANDROID__
+#ifndef __ANDROID__
 	for (auto& kv : cmd.aliases) {
 		std::string address;
 
@@ -1890,7 +1894,13 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
       return true;
     }
 
+    std::error_code sendError = sent.wait(tx);
     removeGuard.removeObserver();
+
+    if (sendError) {
+      fail_msg_writer() << sendError.message();
+      return true;
+    }
 
     CryptoNote::WalletLegacyTransaction txInfo;
     m_wallet->getTransaction(tx, txInfo);
@@ -1910,7 +1920,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
     fail_msg_writer() << "unknown error";
   }
 
-  return true;
+return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::sweep_dust(const std::vector<std::string>& args) {
