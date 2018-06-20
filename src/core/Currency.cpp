@@ -650,7 +650,7 @@ std::vector<difficulty_type> cumulativeDifficulties) const {
     int64_t  FTL = CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT; // FTL=3xT
     int64_t  L(0), ST, sum_3_ST(0), next_D, prev_D; 
 
-    uint64_t initial_difficulty_guess = 0; // Dev must set.  Guess low.
+    uint64_t initial_difficulty_guess = 100; // Dev must set.  Guess low.
     if (timestamps.size() <= static_cast<uint64_t>(N)) {   
          return initial_difficulty_guess;    
     }
