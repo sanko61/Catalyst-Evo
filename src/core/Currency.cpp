@@ -538,7 +538,7 @@ if (timestamps.size() < 4) {
       // TODO: put asserts here, so that the difficulty algorithm is never called with an oversized window
       //       OR make this use the last N+1 timestamps and cum_diff, not the first.
       timestamps.resize(N+1);
-      cumulative_difficulties.resize(N+1);
+      cumulativeDifficulties.resize(N+1);
 }
 
 for ( int64_t i = 1; i <= N; i++) {  
