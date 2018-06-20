@@ -619,11 +619,10 @@ difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<
 		uint64_t nextDiffZ = low / timeSpan;
 
 		// minimum limit
-		if (nextDiffZ < 100000) {
-			nextDiffZ = 100000;
-		}
-
-		return nextDiffZ;
+	// in production set larger
+	//if (!isTestnet() && next_difficulty < 1000) {
+		//next_difficulty = 1000;
+	//}
 	}
 
 	difficulty_type Currency::nextDifficultyV3(std::vector<uint64_t> timestamps,
@@ -682,10 +681,10 @@ difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<
 		next_difficulty = static_cast<uint64_t>(nextDifficulty);
 		
 		// minimum limit
-		if (next_difficulty < 100000) {
-			next_difficulty = 100000;
-		}
-
+	// in production set larger
+	//if (!isTestnet() && next_difficulty < 1000) {
+		//next_difficulty = 1000;
+	//}
 		return next_difficulty;
 	}	
 
