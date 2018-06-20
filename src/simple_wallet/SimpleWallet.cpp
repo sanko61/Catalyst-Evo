@@ -159,9 +159,6 @@ struct TransferCommand {
   std::vector<CryptoNote::WalletLegacyTransfer> dsts;
   std::vector<uint8_t> extra;
   uint64_t fee;
-#ifndef __ANDROID__
-  std::map<std::string, std::vector<WalletLegacyTransfer>> aliases;
-#endif
 
   TransferCommand(const CryptoNote::Currency& currency) :
     m_currency(currency), fake_outs_count(0), fee(currency.minimumFee()) {
@@ -181,6 +178,7 @@ struct TransferCommand {
       }
 
       while (!ar.eof()) {
+
         auto arg = ar.next();
 
         if (arg.size() && arg[0] == '-') {
@@ -208,68 +206,32 @@ struct TransferCommand {
           WalletLegacyTransfer destination;
           CryptoNote::TransactionDestinationEntry de;
 
-#ifndef __ANDROID__		  
-	std::string aliasUrl;
-#endif
-
           if (!m_currency.parseAccountAddressString(arg, de.addr)) {
             Crypto::Hash paymentId;
             if (CryptoNote::parsePaymentId(arg, paymentId)) {
               logger(ERROR, BRIGHT_RED) << "Invalid payment ID usage. Please, use -p <payment_id>. See help for details.";
             } else {
-#ifndef __ANDROID__
-			  // if string doesn't contain a dot, we won't consider it a url for now.
-			  if (strchr(arg.c_str(), '.') == NULL) {
-				logger(ERROR, BRIGHT_RED) << "Wrong address or alias: " << arg;
-				return false;
-			  }             
-			  aliasUrl = arg;
-#endif
+              logger(ERROR, BRIGHT_RED) << "Wrong address: " << arg;
             }
+
+            return false;
           }
 
-		  auto value = ar.next();
-		  bool ok = m_currency.parseAmount(value, de.amount);
-		  if (!ok || 0 == de.amount) {
-#if defined(WIN32)
-#undef max
-#undef min
-#endif 
-			  logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
-				  ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
-			  return false;
-		  }
-
-#ifndef __ANDROID__
-		  if (aliasUrl.empty()) {
-#endif
-			  destination.address = arg;
-			  destination.amount = de.amount;
-			  dsts.push_back(destination);
-#ifndef __ANDROID__
-		  }
-		  else {
-			  aliases[aliasUrl].emplace_back(WalletLegacyTransfer{ "", static_cast<int64_t>(de.amount) });
-		  }
-#endif
-          
-          if (!remote_fee_address.empty()) {
-            destination.address = remote_fee_address;
-            int64_t remote_node_fee = static_cast<int64_t>(de.amount * 0.0025);
-            if (remote_node_fee > 10000000000000)
-                remote_node_fee = 10000000000000;
-            destination.amount = remote_node_fee;
-            dsts.push_back(destination);
+          auto value = ar.next();
+          bool ok = m_currency.parseAmount(value, de.amount);
+          if (!ok || 0 == de.amount) {
+            logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
+              ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
+            return false;
           }
-          
+          destination.address = arg;
+          destination.amount = de.amount;
+
+          dsts.push_back(destination);
         }
       }
 
-	  if (dsts.empty()
-#ifndef __ANDROID__
-		&& aliases.empty()
-#endif
-){
+      if (dsts.empty()) {
         logger(ERROR, BRIGHT_RED) << "At least one destination address is required";
         return false;
       }
@@ -484,58 +446,79 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
   return true;
 }
 
-#ifndef __ANDROID__
-bool processServerAliasResponse(const std::string& s, std::string& address) {
-	try {
+bool processServerAliasResponse(const std::string& response, std::string& address) {
+  try {
+    std::stringstream stream(response);
+    JsonValue json;
+    stream >> json;
 
-		// Courtesy of Monero Project
-		// make sure the txt record has "oa1:krb" and find it
-		auto pos = s.find("oa1:krb");
-		if (pos == std::string::npos)
-			return false;
-		// search from there to find "recipient_address="
-		pos = s.find("recipient_address=", pos);
-		if (pos == std::string::npos)
-			return false;
-		pos += 18; // move past "recipient_address="
-		// find the next semicolon
-		auto pos2 = s.find(";", pos);
-		if (pos2 != std::string::npos)
-		{
-			// length of address == 95, we can at least validate that much here
-			if (pos2 - pos == 95)
-			{
-				address = s.substr(pos, 95);
-			} else {
-				return false;
-			}
-		}
-	}
-	catch (std::exception&) {
-		return false;
-	}
+    auto rootIt = json.getObject().find("digitalname1");
+    if (rootIt == json.getObject().end()) {
+      return false;
+    }
 
-	return true;
+    if (!rootIt->second.isArray()) {
+      return false;
+    }
+
+    if (rootIt->second.size() == 0) {
+      return false;
+    }
+
+    if (!rootIt->second[0].isObject()) {
+      return false;
+    }
+
+    auto xdnIt = rootIt->second[0].getObject().find("xdn");
+    if (xdnIt == rootIt->second[0].getObject().end()) {
+      return false;
+    }
+
+    address = xdnIt->second.getString();
+  } catch (std::exception&) {
+    return false;
+  }
+
+  return true;
+}
+
+bool splitUrlToHostAndUri(const std::string& aliasUrl, std::string& host, std::string& uri) {
+  size_t protoBegin = aliasUrl.find("http://");
+  if (protoBegin != 0 && protoBegin != std::string::npos) {
+    return false;
+  }
+
+  size_t hostBegin = protoBegin == std::string::npos ? 0 : 7; //strlen("http://")
+  size_t hostEnd = aliasUrl.find('/', hostBegin);
+
+  if (hostEnd == std::string::npos) {
+    uri = "/";
+    host = aliasUrl.substr(hostBegin);
+  } else {
+    uri = aliasUrl.substr(hostEnd);
+    host = aliasUrl.substr(hostBegin, hostEnd - hostBegin);
+  }
+
+  return true;
 }
 
 bool askAliasesTransfersConfirmation(const std::map<std::string, std::vector<WalletLegacyTransfer>>& aliases, const Currency& currency) {
-	std::cout << "Would you like to send money to the following addresses?" << std::endl;
+  std::cout << "Would you like to send money to the following addresses?" << std::endl;
 
-	for (const auto& kv : aliases) {
-		for (const auto& transfer : kv.second) {
-			std::cout << transfer.address << " " << std::setw(21) << currency.formatAmount(transfer.amount) << "  " << kv.first << std::endl;
-		}
-	}
+  for (const auto& kv: aliases) {
+    for (const auto& transfer: kv.second) {
+      std::cout << transfer.address << " " << std::setw(21) << currency.formatAmount(transfer.amount) << "  " << kv.first << std::endl;
+    }
+  }
 
-	std::string answer;
-	do {
-		std::cout << "y/n: ";
-		std::getline(std::cin, answer);
-	} while (answer != "y" && answer != "Y" && answer != "n" && answer != "N");
+  std::string answer;
+  do {
+    std::cout << "y/n: ";
+    std::getline(std::cin, answer);
+  } while (answer != "y" && answer != "Y" && answer != "n" && answer != "N");
 
-	return answer == "y" || answer == "Y";
+  return answer == "y" || answer == "Y";
 }
-#endif
 
 bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
  try {
@@ -1707,106 +1690,34 @@ bool simple_wallet::show_blockchain_height(const std::vector<std::string>& args)
 
   return true;
 }
-#ifndef __ANDROID__
 //----------------------------------------------------------------------------------------------------
 std::string simple_wallet::resolveAlias(const std::string& aliasUrl) {
-	std::string host;
-	std::string uri;
-	std::string record;
-	std::string address;
+  std::string host;
+  std::string uri;
 
-	// DNS Lookup
-	if (!fetch_dns_txt(aliasUrl, record)) {
-		throw std::runtime_error("Failed to lookup DNS record");
-	}
+  if (!splitUrlToHostAndUri(aliasUrl, host, uri)) {
+    throw std::runtime_error("Invalid url");
+  }
 
-	if (!processServerAliasResponse(record, address)) {
-		throw std::runtime_error("Failed to parse server response");
-	}
-	
-	return address;
+  HttpClient httpClient(m_dispatcher, host, 80);
+
+  HttpRequest req;
+  HttpResponse res;
+
+  req.setUrl(uri);
+  httpClient.request(req, res);
+
+  if (res.getStatus() != HttpResponse::STATUS_200) {
+    throw std::runtime_error("Remote server returned code " + std::to_string(res.getStatus()));
+  }
+
+  std::string address;
+  if (!processServerAliasResponse(res.getBody(), address)) {
+    throw std::runtime_error("Failed to parse server response");
+  }
+
+return address;
 }
-
-bool simple_wallet::fetch_dns_txt(const std::string domain, std::string &record) {
-
-#ifdef WIN32
-	using namespace std;
-
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Dnsapi.lib")
-
-	PDNS_RECORD pDnsRecord;          //Pointer to DNS_RECORD structure.
-
-	{
-		WORD type = DNS_TYPE_TEXT;
-
-		if (0 != DnsQuery_A(domain.c_str(), type, DNS_QUERY_BYPASS_CACHE, NULL, &pDnsRecord, NULL))
-		{
-			cerr << "Error querying: '" << domain << "'" << endl;
-			return false;
-		}
-	}
-
-	PDNS_RECORD it;
-	map<WORD, function<void(void)>> callbacks;
-	
-	callbacks[DNS_TYPE_TEXT] = [&it,&record](void) -> void {
-		std::stringstream stream;
-		for (DWORD i = 0; i < it->Data.TXT.dwStringCount; i++) {
-			stream << RPC_CSTR(it->Data.TXT.pStringArray[i]) << endl;;
-		}
-		record = stream.str();
-	};
-
-	for (it = pDnsRecord; it != NULL; it = it->pNext) {
-		if (callbacks.count(it->wType)) {
-			callbacks[it->wType]();
-		}
-	}
-	DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
-# else
-	using namespace std;
-
-	res_init();
-	ns_msg nsMsg;
-	int response;
-	unsigned char query_buffer[1024];
-	{
-		ns_type type = ns_t_txt;
-
-		const char * c_domain = (domain).c_str();
-		response = res_query(c_domain, 1, type, query_buffer, sizeof(query_buffer));
-
-		if (response < 0)
-			return 1;
-	}
-
-	ns_initparse(query_buffer, response, &nsMsg);
-
-	map<ns_type, function<void(const ns_rr &rr)>> callbacks;
-
-	callbacks[ns_t_txt] = [&nsMsg,&record](const ns_rr &rr) -> void {
-		std::stringstream stream;
-		stream << ns_rr_rdata(rr) + 1 << endl;
-		record = stream.str();
-	};
-
-	for (int x = 0; x < ns_msg_count(nsMsg, ns_s_an); x++) {
-		ns_rr rr;
-		ns_parserr(&nsMsg, ns_s_an, x, &rr);
-		ns_type type = ns_rr_type(rr);
-		if (callbacks.count(type)) {
-			callbacks[type](rr);
-		}
-	}
-
-#endif
-	if (record.empty())
-		return false;
-
-	return true;
-}
-#endif
 //----------------------------------------------------------------------------------------------------
 std::string simple_wallet::getFeeAddress() {
   
@@ -1844,42 +1755,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
     TransferCommand cmd(m_currency);
 
 	if (!cmd.parseArguments(logger, args))
-		return true;
-
-#ifndef __ANDROID__
-	for (auto& kv : cmd.aliases) {
-		std::string address;
-
-		try {
-			address = resolveAlias(kv.first);
-
-			AccountPublicAddress ignore;
-			if (!m_currency.parseAccountAddressString(address, ignore)) {
-				throw std::runtime_error("Address \"" + address + "\" is invalid");
-			}
-		}
-		catch (std::exception& e) {
-			fail_msg_writer() << "Couldn't resolve alias: " << e.what() << ", alias: " << kv.first;
-			return true;
-		}
-
-		for (auto& transfer : kv.second) {
-			transfer.address = address;
-		}
-	}
-
-	if (!cmd.aliases.empty()) {
-		if (!askAliasesTransfersConfirmation(cmd.aliases, m_currency)) {
-			return true;
-		}
-
-		for (auto& kv : cmd.aliases) {
-			std::copy(std::move_iterator<std::vector<WalletLegacyTransfer>::iterator>(kv.second.begin()),
-				std::move_iterator<std::vector<WalletLegacyTransfer>::iterator>(kv.second.end()),
-				std::back_inserter(cmd.dsts));
-		}
-	}
-#endif
+		return false;
 
     CryptoNote::WalletHelper::SendCompleteResultObserver sent;
 
