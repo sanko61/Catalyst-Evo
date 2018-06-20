@@ -530,9 +530,9 @@ int64_t N   = CryptoNote::parameters::DIFFICULTY_WINDOW - 1;
 int64_t FTL = CryptoNote::parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT; 
 int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 
-uint64_t initial_difficulty_guess = 50; 
+uint64_t initial_difficulty_guess = 0; 
 if (timestamps.size() <= static_cast<uint64_t>(N) )  {  
-    return initial_difficulty_guess;  
+    initial_difficulty_guess = 1;  
 }
 
 for ( int64_t i = 1; i <= N; i++) {  
