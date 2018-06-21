@@ -631,17 +631,12 @@ bool Currency::checkProofOfWorkV2(Crypto::cn_context& context, const Block& bloc
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool Currency::checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty, Crypto::Hash& proofOfWork) const {
-  switch (block.majorVersion) {
-  case CURRENT_BLOCK_MAJOR:
-  return checkProofOfWorkV1(context, block, currentDifficulty, proofOfWork);
- 
-  case NEXT_BLOCK_MAJOR:
-  case NEXT_BLOCK_MAJOR_0:
-  return checkProofOfWorkV2(context, block, currentDifficulty, proofOfWork);
+  
+  if (!get_block_longhash(context, block, proofOfWork)) {
+    return false;
   }
- 
-  logger(ERROR, BRIGHT_RED) << "Unknown block major version: " << block.majorVersion << "." << block.minorVersion;
-  return false;
+
+  return check_hash(proofOfWork, currentDifficulty);
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 size_t Currency::getApproximateMaximumInputCount(size_t transactionSize, size_t outputCount, size_t mixinCount) const {
