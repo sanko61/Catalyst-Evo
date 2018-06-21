@@ -159,9 +159,6 @@ struct TransferCommand {
   std::vector<CryptoNote::WalletLegacyTransfer> dsts;
   std::vector<uint8_t> extra;
   uint64_t fee;
-#ifndef __ANDROID__
-  std::map<std::string, std::vector<WalletLegacyTransfer>> aliases;
-#endif
 
   TransferCommand(const CryptoNote::Currency& currency) :
     m_currency(currency), fake_outs_count(0), fee(currency.minimumFee()) {
@@ -181,6 +178,7 @@ struct TransferCommand {
       }
 
       while (!ar.eof()) {
+
         auto arg = ar.next();
 
         if (arg.size() && arg[0] == '-') {
@@ -208,68 +206,32 @@ struct TransferCommand {
           WalletLegacyTransfer destination;
           CryptoNote::TransactionDestinationEntry de;
 
-#ifndef __ANDROID__		  
-	std::string aliasUrl;
-#endif
-
           if (!m_currency.parseAccountAddressString(arg, de.addr)) {
             Crypto::Hash paymentId;
             if (CryptoNote::parsePaymentId(arg, paymentId)) {
               logger(ERROR, BRIGHT_RED) << "Invalid payment ID usage. Please, use -p <payment_id>. See help for details.";
             } else {
-#ifndef __ANDROID__
-			  // if string doesn't contain a dot, we won't consider it a url for now.
-			  if (strchr(arg.c_str(), '.') == NULL) {
-				logger(ERROR, BRIGHT_RED) << "Wrong address or alias: " << arg;
-				return false;
-			  }             
-			  aliasUrl = arg;
-#endif
+              logger(ERROR, BRIGHT_RED) << "Wrong address: " << arg;
             }
+
+            return false;
           }
 
-		  auto value = ar.next();
-		  bool ok = m_currency.parseAmount(value, de.amount);
-		  if (!ok || 0 == de.amount) {
-#if defined(WIN32)
-#undef max
-#undef min
-#endif 
-			  logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
-				  ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
-			  return false;
-		  }
-
-#ifndef __ANDROID__
-		  if (aliasUrl.empty()) {
-#endif
-			  destination.address = arg;
-			  destination.amount = de.amount;
-			  dsts.push_back(destination);
-#ifndef __ANDROID__
-		  }
-		  else {
-			  aliases[aliasUrl].emplace_back(WalletLegacyTransfer{ "", static_cast<int64_t>(de.amount) });
-		  }
-#endif
-          
-          if (!remote_fee_address.empty()) {
-            destination.address = remote_fee_address;
-            int64_t remote_node_fee = static_cast<int64_t>(de.amount * 0.0025);
-            if (remote_node_fee > 10000000000000)
-                remote_node_fee = 10000000000000;
-            destination.amount = remote_node_fee;
-            dsts.push_back(destination);
+          auto value = ar.next();
+          bool ok = m_currency.parseAmount(value, de.amount);
+          if (!ok || 0 == de.amount) {
+            logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
+              ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
+            return false;
           }
-          
+          destination.address = arg;
+          destination.amount = de.amount;
+
+          dsts.push_back(destination);
         }
       }
 
-	  if (dsts.empty()
-#ifndef __ANDROID__
-		&& aliases.empty()
-#endif
-){
+      if (dsts.empty()) {
         logger(ERROR, BRIGHT_RED) << "At least one destination address is required";
         return false;
       }
@@ -1840,46 +1802,15 @@ std::string simple_wallet::getFeeAddress() {
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::transfer(const std::vector<std::string> &args) {
+  if (m_trackingWallet){
+    fail_msg_writer() << "This is tracking wallet. Spending is impossible.";
+    return true;
+  }
   try {
     TransferCommand cmd(m_currency);
 
-    if (!cmd.parseArguments(logger, args))
-      return true;
-
-    #ifndef __ANDROID__
-	for (auto& kv : cmd.aliases) {
-		std::string address;
-
-		try {
-			address = resolveAlias(kv.first);
-
-			AccountPublicAddress ignore;
-			if (!m_currency.parseAccountAddressString(address, ignore)) {
-				throw std::runtime_error("Address \"" + address + "\" is invalid");
-			}
-		}
-		catch (std::exception& e) {
-			fail_msg_writer() << "Couldn't resolve alias: " << e.what() << ", alias: " << kv.first;
-			return true;
-		}
-
-		for (auto& transfer : kv.second) {
-			transfer.address = address;
-		}
-	}
-
-	if (!cmd.aliases.empty()) {
-		if (!askAliasesTransfersConfirmation(cmd.aliases, m_currency)) {
-			return true;
-		}
-
-		for (auto& kv : cmd.aliases) {
-			std::copy(std::move_iterator<std::vector<WalletLegacyTransfer>::iterator>(kv.second.begin()),
-				std::move_iterator<std::vector<WalletLegacyTransfer>::iterator>(kv.second.end()),
-				std::back_inserter(cmd.dsts));
-		}
-	}
-#endif
+	if (!cmd.parseArguments(logger, args))
+		return false;
 
     CryptoNote::WalletHelper::SendCompleteResultObserver sent;
 
@@ -1894,7 +1825,13 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
       return true;
     }
 
+    std::error_code sendError = sent.wait(tx);
     removeGuard.removeObserver();
+
+    if (sendError) {
+      fail_msg_writer() << sendError.message();
+      return true;
+    }
 
     CryptoNote::WalletLegacyTransaction txInfo;
     m_wallet->getTransaction(tx, txInfo);
@@ -1914,7 +1851,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
     fail_msg_writer() << "unknown error";
   }
 
-  return true;
+return true;
 }
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::sweep_dust(const std::vector<std::string>& args) {
