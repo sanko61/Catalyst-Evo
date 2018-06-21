@@ -490,17 +490,10 @@ bool get_aux_block_header_hash(const Block& b, Hash& res) {
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
   BinaryArray bd;
-  if (b.majorVersion == CURRENT_BLOCK_MAJOR) {
-    if (!get_block_hashing_blob(b, bd)) {
-      return false;
-    }
-  } else if (b.majorVersion >= NEXT_BLOCK_MAJOR) {
-    if (!get_parent_block_hashing_blob(b, bd)) {
-      return false;
-    }
-  } else {
+  if (!get_block_hashing_blob(b, bd)) {
     return false;
   }
+
   cn_slow_hash(context, bd.data(), bd.size(), res, b.majorVersion);
   return true;
 }
