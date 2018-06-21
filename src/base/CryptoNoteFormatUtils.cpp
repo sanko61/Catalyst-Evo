@@ -490,12 +490,20 @@ bool get_aux_block_header_hash(const Block& b, Hash& res) {
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
   BinaryArray bd;
-  if (!get_block_hashing_blob(b, bd)) {
+  if (b.majorVersion == CURRENT_BLOCK_MAJOR) {
+    if (!get_block_hashing_blob(b, bd)) {
+      return false;
+    }
+  } else if (b.majorVersion >= NEXT_BLOCK_MAJOR) {
+    if (!get_parent_block_hashing_blob(b, bd)) {
+      return false;
+    }
+  } else {
     return false;
   }
-
-  cn_slow_hash(context, bd.data(), bd.size(), res, b.majorVersion);
-return true;
+  const int cn_variant = b.majorVersion >= 3 ? b.majorVersion - 2 : 0;
+  cn_slow_hash(context, bd.data(), bd.size(), res, cn_variant);
+  return true;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::vector<uint32_t> relative_output_offsets_to_absolute(const std::vector<uint32_t>& off) {
