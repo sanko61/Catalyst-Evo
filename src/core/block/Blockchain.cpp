@@ -702,7 +702,7 @@ difficulty_type Blockchain::getDifficultyForNextBlock() {
   uint32_t block_index = m_blocks.size();
   uint8_t block_major_version = getBlockMajorVersionForHeight(block_index + 1);
 
-  return m_currency.nextDifficulty(block_major_version, timestamps, commulative_difficulties);
+  return m_currency.nextDifficulty(block_major_version, block_index, timestamps, commulative_difficulties);
 }
 
 uint64_t Blockchain::getBlockTimestamp(uint32_t height) {
@@ -852,7 +852,7 @@ bool Blockchain::switch_to_alternative_blockchain(std::list<blocks_ext_by_hash::
 }
 
 difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std::list<blocks_ext_by_hash::iterator>& alt_chain, BlockEntry& bei) {
-  std::vector<uint64_t> timestamps;
+   std::vector<uint64_t> timestamps;
   std::vector<difficulty_type> commulative_difficulties;
   if (alt_chain.size() < m_currency.difficultyBlocksCount()) {
     std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
@@ -898,7 +898,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   uint32_t block_index = m_blocks.size();
   uint8_t block_major_version = getBlockMajorVersionForHeight(block_index + 1);
 
-  return m_currency.nextDifficulty(block_major_version, timestamps, commulative_difficulties);
+  return m_currency.nextDifficulty(block_major_version, block_index, timestamps, commulative_difficulties);
 }
 
 bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) {

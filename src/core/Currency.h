@@ -118,10 +118,7 @@ public:
   std::string formatAmount(int64_t amount) const;
   bool parseAmount(const std::string& str, uint64_t& amount) const;
 
-  difficulty_type nextDifficulty(uint8_t blockMajorVersion, std::vector<uint64_t> timestamps, std::vector<difficulty_type> Difficulties) const;
-  difficulty_type nextDifficultyv1(std::vector<uint64_t> timestamps, std::vector<difficulty_type> Difficulties) const;
-  difficulty_type nextDifficultyv2(std::vector<uint64_t> timestamps, std::vector<difficulty_type> Difficulties) const;
-  difficulty_type nextDifficultyv3(std::vector<uint64_t> timestamps, std::vector<difficulty_type> Difficulties) const;
+  difficulty_type nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const;
   
   bool checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty, Crypto::Hash& proofOfWork) const;
   bool checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty, Crypto::Hash& proofOfWork) const;
