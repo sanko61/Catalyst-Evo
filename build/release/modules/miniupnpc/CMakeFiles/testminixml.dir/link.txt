@@ -1,1 +1,0 @@
-/usr/bin/cc -DNDEBUG -Ofast  -rdynamic CMakeFiles/testminixml.dir/testminixml.c.o CMakeFiles/testminixml.dir/minixml.c.o CMakeFiles/testminixml.dir/igd_desc_parse.c.o  -o testminixml 

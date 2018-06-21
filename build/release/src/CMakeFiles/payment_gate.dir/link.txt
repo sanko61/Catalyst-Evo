@@ -1,2 +1,0 @@
-/usr/bin/ar qc libpayment_gate.a  CMakeFiles/payment_gate.dir/payment_gate/NodeFactory.cpp.o CMakeFiles/payment_gate.dir/payment_gate/PaymentServiceJsonRpcMessages.cpp.o CMakeFiles/payment_gate.dir/payment_gate/PaymentServiceJsonRpcServer.cpp.o CMakeFiles/payment_gate.dir/payment_gate/WalletService.cpp.o CMakeFiles/payment_gate.dir/payment_gate/WalletServiceErrorCategory.cpp.o
-/usr/bin/ranlib libpayment_gate.a
