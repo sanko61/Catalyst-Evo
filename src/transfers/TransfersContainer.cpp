@@ -183,48 +183,34 @@ TransfersContainer::TransfersContainer(const Currency& currency, Logging::ILogge
 }
 
 bool TransfersContainer::addTransaction(const TransactionBlockInfo& block, const ITransactionReader& tx,
-const std::vector<TransactionOutputInformationIn>& transfers) {
+                                        const std::vector<TransactionOutputInformationIn>& transfers,
+                                        std::vector<TransactionOutputInformation>* unlockingTransfers) {
+  std::unique_lock<std::mutex> lock(m_mutex);
 
-  try {
-    std::unique_lock<std::mutex> lock(m_mutex);
-
-    m_logger(TRACE) << "Adding transaction, block " << block.height << ", transaction index " << block.transactionIndex << ", hash " << tx.getTransactionHash();
-
-    if (block.height < m_currentHeight) {
-      auto message = "Failed to add transaction: block index < m_currentHeight";
-      m_logger(ERROR, BRIGHT_RED) << message << ", block " << block.height << ", m_currentHeight " << m_currentHeight;
-      throw std::invalid_argument(message);
-    }
-
-    if (m_transactions.count(tx.getTransactionHash()) > 0) {
-      auto message = "Transaction is already added";
-      m_logger(ERROR, BRIGHT_RED) << message << ", hash " << tx.getTransactionHash();
-      throw std::invalid_argument(message);
-    }
-
-    bool added = addTransactionOutputs(block, tx, transfers);
-    added |= addTransactionInputs(block, tx);
-
-    if (added) {
-      addTransaction(block, tx);
-    } else {
-      m_logger(TRACE) << "Transaction not added";
-    }
-
-    if (block.height != WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
-      m_currentHeight = block.height;
-    }
-
-    return added;
-  } catch (...) {
-    if (m_transactions.count(tx.getTransactionHash()) == 0) {
-      m_logger(ERROR, BRIGHT_RED) << "Failed to add transaction, remove transaction transfers, block " << block.height <<
-        ", transaction hash " << tx.getTransactionHash();
-      deleteTransactionTransfers(tx.getTransactionHash());
-    }
-
-    throw;
+  if (block.height < m_currentHeight) {
+    throw std::invalid_argument("Cannot add transaction from block < m_currentHeight");
   }
+
+  if (m_transactions.count(tx.getTransactionHash()) > 0) {
+    throw std::invalid_argument("Transaction is already added");
+  }
+
+  bool added = addTransactionOutputs(block, tx, transfers);
+  added |= addTransactionInputs(block, tx);
+
+  if (added) {
+    addTransaction(block, tx);
+  }
+
+  if (block.height != WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
+    auto finishedJobs = doAdvanceHeight(block.height);
+
+    if (unlockingTransfers != nullptr) {
+      *unlockingTransfers = std::move(finishedJobs);
+    }
+  }
+
+  return added;
 }
 
 /**

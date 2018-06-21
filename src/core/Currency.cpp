@@ -626,6 +626,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   tailemisionReward(parameters::TAIL_EMISSION_REWARD);
 
   rewardBlocksWindow(parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW);
+  minMixin(parameters::MIN_MIXIN);
   blockGrantedFullRewardZone(parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE);
   minerTxBlobReservedSize(parameters::CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE);
 

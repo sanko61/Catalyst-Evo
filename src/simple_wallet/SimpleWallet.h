@@ -174,6 +174,7 @@ namespace CryptoNote
     Crypto::SecretKey m_recovery_key;  // recovery key (used as random for wallet gen)
     bool m_restore_deterministic_wallet;  // recover flag
     bool m_non_deterministic; // old 2-random generation
+    uint16_t m_minMixin;
 
     std::unique_ptr<std::promise<std::error_code>> m_initResultPromise;
 

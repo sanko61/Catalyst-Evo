@@ -77,12 +77,12 @@ bool recover = false, bool two_random = false) override;
                                         uint64_t fee,
                                         const std::string& extra = "",
                                         uint64_t mixIn = 0,
-                                        uint64_t unlockTimestamp = 0);
+                                        uint64_t unlockTimestamp = 0) override;
   virtual TransactionId sendTransaction(const std::vector<WalletLegacyTransfer>& transfers,
                                         uint64_t fee,
                                         const std::string& extra = "",
                                         uint64_t mixIn = 0,
-                                        uint64_t unlockTimestamp = 0);
+                                        uint64_t unlockTimestamp = 0) override;
   virtual TransactionId sendDustTransaction(const WalletLegacyTransfer& transfer, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) override;
 virtual TransactionId sendDustTransaction(const std::vector<WalletLegacyTransfer>& transfers, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) override;
   virtual TransactionId deposit(uint32_t term, uint64_t amount, uint64_t fee, uint64_t mixIn = 0) override;

@@ -34,6 +34,7 @@ public:
   uint64_t tailemisionReward() const { return m_tailemisionReward; }
 
   size_t rewardBlocksWindow() const { return m_rewardBlocksWindow; }
+  size_t minMixin() const { return m_minMixin; }
   size_t blockGrantedFullRewardZoneByBlockVersion(uint8_t blockMajorVersion) const;
 
   size_t blockGrantedFullRewardZone() const { return m_blockGrantedFullRewardZone; }
@@ -153,6 +154,7 @@ private:
   uint64_t m_tailemisionReward;
 
   size_t m_rewardBlocksWindow;
+  size_t m_minMixin;
   size_t m_blockGrantedFullRewardZone;
   size_t m_minerTxBlobReservedSize;
 
@@ -244,6 +246,7 @@ public:
   CurrencyBuilder& tailemisionReward(uint64_t val) { m_currency.m_tailemisionReward = val; return *this; }
 
   CurrencyBuilder& rewardBlocksWindow(size_t val) { m_currency.m_rewardBlocksWindow = val; return *this; }
+  CurrencyBuilder& minMixin(size_t val) { m_currency.m_minMixin = val; return *this; }
   
   CurrencyBuilder& blockGrantedFullRewardZone(size_t val) { m_currency.m_blockGrantedFullRewardZone = val; return *this; }
   CurrencyBuilder& minerTxBlobReservedSize(size_t val) { m_currency.m_minerTxBlobReservedSize = val; return *this; }

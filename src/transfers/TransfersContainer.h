@@ -182,7 +182,9 @@ public:
 
   TransfersContainer(const CryptoNote::Currency& currency, Logging::ILogger& logger, size_t transactionSpendableAge);
 
-  bool addTransaction(const TransactionBlockInfo& block, const ITransactionReader& tx, const std::vector<TransactionOutputInformationIn>& transfers);
+   bool addTransaction(const TransactionBlockInfo& block, const ITransactionReader& tx,
+                      const std::vector<TransactionOutputInformationIn>& transfers,
+                      std::vector<TransactionOutputInformation>* unlockingTransfers = nullptr);
   bool deleteUnconfirmedTransaction(const Crypto::Hash& transactionHash);
   bool markTransactionConfirmed(const TransactionBlockInfo& block, const Crypto::Hash& transactionHash, const std::vector<uint32_t>& globalIndices);
 

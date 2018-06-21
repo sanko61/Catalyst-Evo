@@ -23,6 +23,7 @@ const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 11;
 const uint64_t MONEY_SUPPLY                                  = UINT64_C(2100000000000000000);
 
 const size_t   CRYPTONOTE_COIN_VERSION                       = 1;
+const size_t   MIN_MIXIN                          	     = 0;
 
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1000000; //size of block (bytes) after which reward for block calculated using block size
