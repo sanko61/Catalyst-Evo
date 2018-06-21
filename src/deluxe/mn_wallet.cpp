@@ -159,9 +159,7 @@ struct TransferCommand {
   std::vector<CryptoNote::WalletLegacyTransfer> dsts;
   std::vector<uint8_t> extra;
   uint64_t fee;
-#ifndef __ANDROID__
   std::map<std::string, std::vector<WalletLegacyTransfer>> aliases;
-#endif
 
   TransferCommand(const CryptoNote::Currency& currency) :
     m_currency(currency), fake_outs_count(0), fee(currency.minimumFee()) {
@@ -179,6 +177,12 @@ struct TransferCommand {
         logger(ERROR, BRIGHT_RED) << "mixin_count should be non-negative integer, got " << mixin_str;
         return false;
       }
+	       if (fake_outs_count < m_currency.minMixin()) {
+                logger(ERROR, BRIGHT_RED) << "mixin should be equal or bigger to " << m_currency.minMixin();
+                return false;
+              }
+
+      bool feeFound = false;
 
       while (!ar.eof()) {
         auto arg = ar.next();
@@ -193,6 +197,8 @@ struct TransferCommand {
               return false;
             }
           } else if (arg == "-f") {
+              feeFound = true;
+
             bool ok = m_currency.parseAmount(value, fee);
             if (!ok) {
               logger(ERROR, BRIGHT_RED) << "Fee value is invalid: " << value;
@@ -203,73 +209,43 @@ struct TransferCommand {
               logger(ERROR, BRIGHT_RED) << "Fee value is less than minimum: " << m_currency.minimumFee();
               return false;
             }
+
+            if (feeFound) {
+              logger(ERROR, BRIGHT_RED) << "Transaction with fee can not have TTL";
+              return false;
+            } else {
+              fee = 0;
+            }
+
           }
         } else {
           WalletLegacyTransfer destination;
           CryptoNote::TransactionDestinationEntry de;
-
-#ifndef __ANDROID__		  
-	std::string aliasUrl;
-#endif
+          std::string aliasUrl;
 
           if (!m_currency.parseAccountAddressString(arg, de.addr)) {
-            Crypto::Hash paymentId;
-            if (CryptoNote::parsePaymentId(arg, paymentId)) {
-              logger(ERROR, BRIGHT_RED) << "Invalid payment ID usage. Please, use -p <payment_id>. See help for details.";
-            } else {
-#ifndef __ANDROID__
-			  // if string doesn't contain a dot, we won't consider it a url for now.
-			  if (strchr(arg.c_str(), '.') == NULL) {
-				logger(ERROR, BRIGHT_RED) << "Wrong address or alias: " << arg;
-				return false;
-			  }             
-			  aliasUrl = arg;
-#endif
-            }
+            aliasUrl = arg;
           }
 
-		  auto value = ar.next();
-		  bool ok = m_currency.parseAmount(value, de.amount);
-		  if (!ok || 0 == de.amount) {
-#if defined(WIN32)
-#undef max
-#undef min
-#endif 
-			  logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
-				  ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
-			  return false;
-		  }
+          auto value = ar.next();
+          bool ok = m_currency.parseAmount(value, de.amount);
+          if (!ok || 0 == de.amount) {
+            logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
+              ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
+            return false;
+          }
 
-#ifndef __ANDROID__
-		  if (aliasUrl.empty()) {
-#endif
-			  destination.address = arg;
-			  destination.amount = de.amount;
-			  dsts.push_back(destination);
-#ifndef __ANDROID__
-		  }
-		  else {
-			  aliases[aliasUrl].emplace_back(WalletLegacyTransfer{ "", static_cast<int64_t>(de.amount) });
-		  }
-#endif
-          
-          if (!remote_fee_address.empty()) {
-            destination.address = remote_fee_address;
-            int64_t remote_node_fee = static_cast<int64_t>(de.amount * 0.0025);
-            if (remote_node_fee > 10000000000000)
-                remote_node_fee = 10000000000000;
-            destination.amount = remote_node_fee;
+          if (aliasUrl.empty()) {
+            destination.address = arg;
+            destination.amount = de.amount;
             dsts.push_back(destination);
+          } else {
+            aliases[aliasUrl].emplace_back(WalletLegacyTransfer{"", static_cast<int64_t>(de.amount)});
           }
-          
         }
       }
 
-	  if (dsts.empty()
-#ifndef __ANDROID__
-		&& aliases.empty()
-#endif
-){
+      if (dsts.empty() && aliases.empty()) {
         logger(ERROR, BRIGHT_RED) << "At least one destination address is required";
         return false;
       }
