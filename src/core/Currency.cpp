@@ -569,8 +569,8 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
 
 	// minimum limit
 	// in production set larger
-	if (!isTestnet() && next_difficulty < 100000) {
-		next_difficulty = 100000;
+	if (!isTestnet() && next_difficulty < 1000) {
+		next_difficulty = 1000;
 	}
 
 return next_difficulty;
