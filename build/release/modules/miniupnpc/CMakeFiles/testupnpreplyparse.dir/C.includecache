@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/coins/catalyst2/modules/miniupnpc/bsdqueue.h
+
+/root/coins/catalyst2/modules/miniupnpc/minixml.c
+string.h
+-
+minixml.h
+/root/coins/catalyst2/modules/miniupnpc/minixml.h
+
+/root/coins/catalyst2/modules/miniupnpc/minixml.h
+
+/root/coins/catalyst2/modules/miniupnpc/testupnpreplyparse.c
+stdio.h
+-
+string.h
+-
+stdlib.h
+-
+upnpreplyparse.h
+/root/coins/catalyst2/modules/miniupnpc/upnpreplyparse.h
+
+/root/coins/catalyst2/modules/miniupnpc/upnpreplyparse.c
+stdlib.h
+-
+string.h
+-
+stdio.h
+-
+upnpreplyparse.h
+/root/coins/catalyst2/modules/miniupnpc/upnpreplyparse.h
+minixml.h
+/root/coins/catalyst2/modules/miniupnpc/minixml.h
+
+/root/coins/catalyst2/modules/miniupnpc/upnpreplyparse.h
+bsdqueue.h
+/root/coins/catalyst2/modules/miniupnpc/bsdqueue.h
+sys/queue.h
+-
+

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libp2p.a  CMakeFiles/p2p.dir/protocol/CryptoNoteProtocolHandler.cpp.o CMakeFiles/p2p.dir/p2p/LevinProtocol.cpp.o CMakeFiles/p2p.dir/p2p/NetNode.cpp.o CMakeFiles/p2p.dir/p2p/NetNodeConfig.cpp.o CMakeFiles/p2p.dir/p2p/P2pConnectionProxy.cpp.o CMakeFiles/p2p.dir/p2p/P2pContext.cpp.o CMakeFiles/p2p.dir/p2p/P2pContextOwner.cpp.o CMakeFiles/p2p.dir/p2p/P2pInterfaces.cpp.o CMakeFiles/p2p.dir/p2p/P2pNode.cpp.o CMakeFiles/p2p.dir/p2p/P2pNodeConfig.cpp.o CMakeFiles/p2p.dir/p2p/PeerListManager.cpp.o
+/usr/bin/ranlib libp2p.a

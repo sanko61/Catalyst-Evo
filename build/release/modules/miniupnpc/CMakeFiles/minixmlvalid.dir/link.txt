@@ -1,0 +1,1 @@
+/usr/bin/cc -DNDEBUG -Ofast  -rdynamic CMakeFiles/minixmlvalid.dir/minixmlvalid.c.o CMakeFiles/minixmlvalid.dir/minixml.c.o  -o minixmlvalid 
