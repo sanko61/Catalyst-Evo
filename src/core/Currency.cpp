@@ -569,8 +569,8 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
 
 	// minimum limit
 	// in production set larger
-	if (next_difficulty < 10000) { //less than 1k will did
-		next_difficulty = 10000; //this diff reach 1k!
+	if (next_difficulty < 100000) { //less than 1k will did[change if already more than 1k]
+		next_difficulty = 100000; //this diff reach 1k![change if already more than 1k]
 	}
 
 	return next_difficulty;
