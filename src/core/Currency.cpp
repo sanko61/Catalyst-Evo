@@ -529,8 +529,8 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
     size_t N = m_difficultyWindow;
 
 	// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-	if (timestamps.size() < 4) { //this when seed more updates than new user
-		return 1; //back to 1k diff for slow hash
+	if (timestamps.size() < 10) { //this when seed more updates than new user
+		return 1000; //back to 1k diff for slow hash
 	}
 	// otherwise, use a smaller N if the start of the chain is less than N+1
 	else if (timestamps.size() < N + 1) {
