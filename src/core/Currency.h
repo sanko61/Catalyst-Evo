@@ -50,8 +50,8 @@ public:
   uint64_t difficultyTarget() const { return m_difficultyTarget; }
   size_t difficultyWindow() const { return m_difficultyWindow; }
   size_t difficultyCut() const { return m_difficultyCut; }
-  size_t difficultyBlocksCount1() const { return m_difficultyWindow + m_difficultyLag; }
-  size_t difficultyBlocksCount() const { return parameters::DIFFICULTY_WINDOW_V1 + 1; }
+  size_t difficultyBlocksCount() const { return m_difficultyWindow + m_difficultyLag; }
+  size_t difficultyBlocksCount1() const { return parameters::DIFFICULTY_WINDOW_V1 + 1; }
 
   uint64_t depositMinAmount() const { return m_depositMinAmount; }
   uint32_t depositMinTerm() const { return m_depositMinTerm; }
