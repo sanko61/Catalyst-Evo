@@ -515,47 +515,64 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 // Legacy difficulty algorithm
 difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
   std::vector<difficulty_type> cumulativeDifficulties) const {
-  assert(m_difficultyWindow >= 2);
+  // LWMA difficulty algorithm
+		// Copyright (c) 2017-2018 Zawy
+		// MIT license http://www.opensource.org/licenses/mit-license.php.
+		// This is an improved version of Tom Harding's (Deger8) "WT-144"  
+		// Karbowanec, Masari, Bitcoin Gold, and Bitcoin Cash have contributed.
+		// See https://github.com/zawy12/difficulty-algorithms/issues/1 for other algos.
+		// Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
+		// T= target_solvetime;
+		// N = int(45 * (600 / T) ^ 0.3));
 
-  if (timestamps.size() > m_difficultyWindow) {
-    timestamps.resize(m_difficultyWindow);
-    cumulativeDifficulties.resize(m_difficultyWindow);
-  }
+		const int64_t T = static_cast<int64_t>(m_difficultyTarget);
+		size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_V1;
 
-  size_t length = timestamps.size();
-  assert(length == cumulativeDifficulties.size());
-  assert(length <= m_difficultyWindow);
-  if (length <= 1) {
-    return 1;
-  }
+		// return a difficulty of 1 for first 3 blocks if it's the start of the chain
+		if (timestamps.size() < 4) {
+			return 1;
+		}
+		// otherwise, use a smaller N if the start of the chain is less than N+1
+		else if (timestamps.size() < N + 1) {
+			N = timestamps.size() - 1;
+		}
+		else if (timestamps.size() > N + 1) {
+			timestamps.erase(timestamps.begin(), timestamps.end() - N - 1);
+			cumulativeDifficulties.erase(cumulativeDifficulties.begin(), cumulativeDifficulties.end() - N - 1);
+		}
 
-  sort(timestamps.begin(), timestamps.end());
+		// To get an average solvetime to within +/- ~0.1%, use an adjustment factor.
+		const double adjust = 0.998;
+		// The divisor k normalizes LWMA.
+		const double k = N * (N + 1) / 2;
 
-  size_t cutBegin, cutEnd;
-  assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
-  if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
-    cutBegin = 0;
-    cutEnd = length;
-  } else {
-    cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
-    cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
-  }
-  assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
-  uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
-  if (timeSpan == 0) {
-    timeSpan = 1;
-  }
+		double LWMA(0), sum_inverse_D(0), harmonic_mean_D(0), nextDifficulty(0);
+		int64_t solveTime(0);
+		uint64_t difficulty(0), next_difficulty(0);
 
-  difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
-  assert(totalWork > 0);
+		// Loop through N most recent blocks.
+		for (size_t i = 1; i <= N; i++) {
+			solveTime = static_cast<int64_t>(timestamps[i]) - static_cast<int64_t>(timestamps[i - 1]);
+			solveTime = std::min<int64_t>((T * 7), std::max<int64_t>(solveTime, (-6 * T)));
+			difficulty = cumulativeDifficulties[i] - cumulativeDifficulties[i - 1];
+			LWMA += (int64_t)(solveTime * i) / k;
+			sum_inverse_D += 1 / static_cast<double>(difficulty);
+		}
 
-  uint64_t low, high;
-  low = mul128(totalWork, m_difficultyTarget, &high);
-  if (high != 0 || low + timeSpan - 1 < low) {
-    return 0;
-  }
+		// Keep LWMA sane in case something unforeseen occurs.
+		if (static_cast<int64_t>(boost::math::round(LWMA)) < T / 20)
+			LWMA = static_cast<double>(T) / 20;
 
-  return (low + timeSpan - 1) / timeSpan;
+		harmonic_mean_D = N / sum_inverse_D * adjust;
+		nextDifficulty = harmonic_mean_D * T / LWMA;
+		next_difficulty = static_cast<uint64_t>(nextDifficulty);
+		
+		// minimum limit
+		if (next_difficulty < 100000) {
+			next_difficulty = 100000;
+		}
+
+		return next_difficulty;
 }
 
 // Zawy's LMWA difficulty algo
@@ -563,7 +580,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 	std::vector<difficulty_type> cumulativeDifficulties, uint64_t height) const {
 
 	int64_t T = parameters::DIFFICULTY_TARGET_V1; // set to 20 temporarily
-	int64_t N = parameters::DIFFICULTY_WINDOW_V1 - 1; //  N=45, 60, and 90 for T=600, 120, 60.
+	int64_t N = parameters::DIFFICULTY_WINDOW_V2 - 1; //  N=45, 60, and 90 for T=600, 120, 60.
 	int64_t FTL = parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1; // < 3xT
 	int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 

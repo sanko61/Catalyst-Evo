@@ -46,11 +46,9 @@ const uint64_t DIFFICULTY_TARGET_V1                          = 120; // LWMA-2
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1         = 3 * DIFFICULTY_TARGET;  //LWMA
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
-const size_t   DIFFICULTY_WINDOW                             = 60; // blocks
-const size_t   DIFFICULTY_WINDOW_V1                          = 60; // LWMA-2
-const size_t   DIFFICULTY_LAG                                = 15;  // not used in LWMA-2
-const size_t   DIFFICULTY_CUT                                = 60;  // timestamps to cut after sorting
-static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
+const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
+const size_t   DIFFICULTY_WINDOW_V1                          = 60; // LWMA
+const size_t   DIFFICULTY_WINDOW_V2                          = 60 + 1; // LWMA-2
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 500 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 22000; // ~1 month
