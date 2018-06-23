@@ -48,6 +48,8 @@ public:
 
   uint64_t difficultyTarget() const { return m_difficultyTarget; }
   size_t difficultyWindow() const { return m_difficultyWindow; }
+  size_t difficultyLag() const { return m_difficultyLag; }
+  size_t difficultyCut() const { return m_difficultyCut; }
   size_t difficultyBlocksCount() const { return m_difficultyWindow; }
 
   uint64_t depositMinAmount() const { return m_depositMinAmount; }
@@ -120,6 +122,8 @@ public:
   bool parseAmount(const std::string& str, uint64_t& amount) const;
 
   difficulty_type nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const;
+  difficulty_type nextDifficultyv1(std::vector<uint64_t> timestamps, std::vector<difficulty_type> Difficulties) const;
+  difficulty_type nextDifficultyv2(std::vector<uint64_t> timestamps, std::vector<difficulty_type> Difficulties) const;
   
   bool checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
   bool checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
