@@ -512,7 +512,7 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------/
 difficulty_type Currency::nextDifficulty(uint8_t blockMajorVersion, std::vector<uint64_t> timestamps,
-  std::vector<difficulty_type> cumulativeDifficulties) const {
+		std::vector<difficulty_type> cumulativeDifficulties) const {
 
 		if (blockMajorVersion >= NEXT_BLOCK_MAJOR) {
 			return nextDifficultyv2(timestamps, cumulativeDifficulties);
@@ -580,7 +580,7 @@ difficulty_type Currency::nextDifficultyv2(std::vector<uint64_t> timestamps,
     // N = int(45 * (600 / T) ^ 0.3));
  
     const int64_t T = static_cast<int64_t>(m_difficultyTarget);
-    size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_v2;
+    size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_v1;
 
 	// return a difficulty of 1 for first 3 blocks if it's the start of the chain
 	if (timestamps.size() < 4) { //this when seed more updates than new user
