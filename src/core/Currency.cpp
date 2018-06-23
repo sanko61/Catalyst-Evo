@@ -569,7 +569,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 
 	// Hardcode difficulty for 61 blocks after fork height: 
 	if (height >= parameters::UPGRADE_HEIGHT_V3 && height <= parameters::UPGRADE_HEIGHT_V3 + N) {
-		return 1000000000;
+		return 100000;
 	}
 
 	// TS and CD vectors must be size N+1 after startup, and element N is most recent block.
