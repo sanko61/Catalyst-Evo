@@ -529,8 +529,8 @@ difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
 		size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_V1;
 
 		// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-		if (timestamps.size() < 4) {
-			return 1;
+		if (timestamps.size() < 4) { //change to new for nice hash put this 10 ~ Hatta
+			return 1; //put 1000 for nice hash ~ Hatta
 		}
 		// otherwise, use a smaller N if the start of the chain is less than N+1
 		else if (timestamps.size() < N + 1) {
@@ -568,7 +568,7 @@ difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
 		next_difficulty = static_cast<uint64_t>(nextDifficulty);
 		
 		// minimum limit
-		if (next_difficulty < 100000) {
+		if (next_difficulty < 100000) { //ok do
 			next_difficulty = 100000;
 		}
 
@@ -586,7 +586,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 
 	// Hardcode difficulty for 61 blocks after fork height: 
 	if (height >= parameters::UPGRADE_HEIGHT_V3 && height <= parameters::UPGRADE_HEIGHT_V3 + N) {
-		return 100000;
+		return 100000; //by default put this for not overloaded diff ~ Yuka
 	}
 
 	// TS and CD vectors must be size N+1 after startup, and element N is most recent block.
@@ -613,7 +613,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 	prev_D = cumulativeDifficulties[N] - cumulativeDifficulties[N - 1];
 	if (sum_3_ST < (8 * T) / 10) { next_D = (prev_D * 110) / 100; }
 
-	return static_cast<uint64_t>(next_D);
+	return static_cast<uint64_t>(next_D); //turn to anata diff LWMA ~ Yuka
 
 	// next_Target = sumTargets*L*2/0.998/T/(N+1)/N/N; // To show the difference.
 }
@@ -738,8 +738,6 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
 
   difficultyTarget(parameters::DIFFICULTY_TARGET);
   difficultyWindow(parameters::DIFFICULTY_WINDOW);
-  difficultyLag(parameters::DIFFICULTY_LAG);
-  difficultyCut(parameters::DIFFICULTY_CUT);
 
   depositMinAmount(parameters::DEPOSIT_MIN_AMOUNT);
   depositMinTerm(parameters::DEPOSIT_MIN_TERM);
