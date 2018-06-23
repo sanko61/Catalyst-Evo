@@ -368,10 +368,10 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
     b.majorVersion = m_blockchain.getBlockMajorVersionForHeight(height);
 
     if (b.majorVersion == CURRENT_BLOCK_MAJOR) {
-      b.minorVersion = m_currency.upgradeHeight(NEXT_BLOCK_MAJOR) == UpgradeDetectorBase::UNDEF_HEIGHT ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
-    } else if (b.majorVersion >= NEXT_BLOCK_MAJOR) {
-      if (m_currency.upgradeHeight(NEXT_BLOCK_MAJOR_0) == UpgradeDetectorBase::UNDEF_HEIGHT) {
-        b.minorVersion = b.majorVersion == NEXT_BLOCK_MAJOR ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
+      b.minorVersion = m_currency.upgradeHeight(CURRENT_BLOCK_MAJOR + 1) == UpgradeDetectorBase::UNDEF_HEIGHT ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
+    } else if (b.majorVersion >= (CURRENT_BLOCK_MAJOR + 1)) {
+      if (m_currency.upgradeHeight(CURRENT_BLOCK_MAJOR + 2) == UpgradeDetectorBase::UNDEF_HEIGHT) {
+        b.minorVersion = b.majorVersion == (CURRENT_BLOCK_MAJOR + 1) ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
       } else {
         b.minorVersion = BLOCK_MINOR_VERSION_0;
       }
@@ -394,16 +394,30 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
     // Fix by Jagerman
     // https://github.com/graft-project/GraftNetwork/pull/118/commits
 
-    if(height >= m_currency.timestampCheckWindow()) {
-      std::vector<uint64_t> timestamps;
-      for(size_t offset = height - m_currency.timestampCheckWindow(); offset < height; ++offset) {
-        timestamps.push_back(m_blockchain.getBlockTimestamp(offset));
-      }
-      uint64_t median_ts = Common::medianValue(timestamps);
-      if (b.timestamp < median_ts) {
-          b.timestamp = median_ts;
-      }
-    }
+    //jagerman's patch 
+	uint64_t check_window = m_blockchain.getForkVersion() < 1 ? parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW : parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V1;
+	if (m_blockchain.getCurrentBlockchainHeight() >= check_window) {
+		std::vector<uint64_t> timestamps;
+		uint64_t height = m_blockchain.getCurrentBlockchainHeight();
+		for (uint64_t offset = height - check_window; offset < height; ++offset)
+		{
+			timestamps.push_back(m_blockchain.getBlockTimestamp(offset));
+		}
+
+		double median;
+		size_t ts_size = timestamps.size();
+		if (ts_size % 2 == 0) {
+			median = (timestamps[ts_size / 2 - 1] + timestamps[ts_size / 2]) / 2;
+		}
+		else {
+			median = timestamps[ts_size / 2];
+		}
+
+		uint64_t median_ts = static_cast<uint64_t>(median);
+		if (b.timestamp < median_ts) {
+			b.timestamp = median_ts;
+		}
+	}
 
     median_size = m_blockchain.getCurrentCumulativeBlocksizeLimit() / 2;
     already_generated_coins = m_blockchain.getCoinsInCirculation();

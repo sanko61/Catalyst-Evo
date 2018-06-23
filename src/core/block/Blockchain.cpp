@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <cmath>
 #include <boost/foreach.hpp>
 #include "common/Math.h"
 #include "ShuffleGenerator.h"
@@ -305,7 +304,7 @@ Blockchain::Blockchain(const Currency& currency, tx_memory_pool& tx_pool, ILogge
   m_tx_pool(tx_pool),
   m_current_block_cumul_sz_limit(0),
   m_is_in_checkpoint_zone(false),
-  m_upgradeDetectorv2(currency, m_blocks, NEXT_BLOCK_MAJOR, logger),
+  m_upgradeDetectorv2(currency, m_blocks, CURRENT_BLOCK_MAJOR + 1, logger),
   m_upgradeDetectorv3(currency, m_blocks, NEXT_BLOCK_MAJOR_LIMIT, logger),
   m_checkpoints(logger),
   m_paymentIdIndex(blockchainIndexesEnabled),
@@ -685,6 +684,20 @@ bool Blockchain::getBlockHeight(const Crypto::Hash& blockId, uint32_t& blockHeig
   return m_blockIndex.getBlockHeight(blockId, blockHeight);
 }
 
+uint8_t Blockchain::getForkVersion() {
+  uint32_t height = getCurrentBlockchainHeight();
+  const std::map<const uint32_t, const uint8_t>* versionMap;
+  versionMap = &Version;
+
+  uint8_t lastForkVersion = 0;
+    for (auto const& it : *versionMap) {
+      if (height > it.first) {
+        lastForkVersion = it.second;
+      }
+    }
+  return lastForkVersion;
+}
+
 difficulty_type Blockchain::getDifficultyForNextBlock() {
   std::lock_guard<decltype(m_blockchain_lock)> lk(m_blockchain_lock);
   std::vector<uint64_t> timestamps;
@@ -733,11 +746,9 @@ uint64_t Blockchain::getCoinsInCirculation() {
 uint8_t Blockchain::getBlockMajorVersionForHeight(uint32_t height) const {
   if (height > m_upgradeDetectorv3.upgradeHeight()) {
     return m_upgradeDetectorv3.targetVersion();
-  } else if (height > m_upgradeDetectorv2.upgradeHeight()) {
-    return m_upgradeDetectorv2.targetVersion();
   } else {
     return CURRENT_BLOCK_MAJOR;
-  }
+}
 }
 
 uint64_t Blockchain::coinsEmittedAtHeight(uint64_t height) {
@@ -978,7 +989,7 @@ bool Blockchain::validate_miner_transaction(const Block& b, uint32_t height, siz
     return false;
   }
 
-  if (minerReward > reward) {
+  if (minerReward > reward + fee) {
     logger(ERROR, BRIGHT_RED) << "Coinbase transaction spend too much money: " << m_currency.formatAmount(minerReward) <<
       ", block reward is " << m_currency.formatAmount(reward);
 
@@ -1736,7 +1747,10 @@ bool Blockchain::check_tx_outputs(const Transaction& tx) const {
 }
 
 bool Blockchain::check_block_timestamp_main(const Block& b) {
-  if (b.timestamp > get_adjusted_time() + m_currency.blockFutureTimeLimit()) {
+  uint64_t ftl = m_currency.blockFutureTimeLimit();
+  if (getForkVersion() == 1)
+    ftl = m_currency.blockFutureTimeLimit_v1();
+  if (b.timestamp > get_adjusted_time() + ftl) {
     logger(INFO, BRIGHT_WHITE) <<
       "Timestamp of block with id: " << get_block_hash(b) << ", " << b.timestamp << ", bigger than adjusted time + 2 hours";
     return false;
@@ -1777,7 +1791,7 @@ bool Blockchain::checkBlockVersion(const Block& b, const Crypto::Hash& blockHash
     return false;
   }
 
-  if (b.majorVersion == NEXT_BLOCK_MAJOR && b.parentBlock.majorVersion > CURRENT_BLOCK_MAJOR) {
+  if (b.majorVersion == (CURRENT_BLOCK_MAJOR + 1) && b.parentBlock.majorVersion > CURRENT_BLOCK_MAJOR) {
     logger(ERROR, BRIGHT_RED) << "Parent block of block " << blockHash << " has wrong major version: " << static_cast<int>(b.parentBlock.majorVersion) <<
       ", at height " << height << " expected version is " << static_cast<int>(CURRENT_BLOCK_MAJOR);
     return false;
@@ -1787,7 +1801,7 @@ bool Blockchain::checkBlockVersion(const Block& b, const Crypto::Hash& blockHash
 }
 
 bool Blockchain::checkParentBlockSize(const Block& b, const Crypto::Hash& blockHash) {
-  if (b.majorVersion >= NEXT_BLOCK_MAJOR) {
+  if (b.majorVersion >= (CURRENT_BLOCK_MAJOR + 1)) {
     auto serializer = makeParentBlockSerializer(b, false, false);
     size_t parentBlockSize;
     if (!getObjectBinarySize(serializer, parentBlockSize)) {
@@ -2488,7 +2502,11 @@ bool Blockchain::getLowerBound(uint64_t timestamp, uint64_t startOffset, uint32_
 
   assert(startOffset < m_blocks.size());
 
-  auto bound = std::lower_bound(m_blocks.begin() + startOffset, m_blocks.end(), timestamp - m_currency.blockFutureTimeLimit(),
+  uint64_t ftl = m_currency.blockFutureTimeLimit();
+  if (getForkVersion() == 1)
+    ftl = m_currency.blockFutureTimeLimit_v1();
+
+  auto bound = std::lower_bound(m_blocks.begin() + startOffset, m_blocks.end(), timestamp - ftl,
     [](const BlockEntry& b, uint64_t timestamp) { return b.bl.timestamp < timestamp; });
 
   if (bound == m_blocks.end()) {

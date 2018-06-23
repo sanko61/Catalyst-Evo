@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
-#include <limits>
 #include <initializer_list>
+#include <map>
 #include "contrib.hpp"
 
 namespace CryptoNote {
@@ -16,7 +15,8 @@ const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 9524; // addresse
 const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 10; 
 const uint64_t CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE           = 10;
 
-const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 11; 
+const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 30;
+const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V1          = 11;  //jagerman's patch 
 
 const uint64_t MONEY_SUPPLY                                  = UINT64_C(2100000000000000000);
 
@@ -44,7 +44,7 @@ static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED
 const uint64_t DIFFICULTY_TARGET                             = 240; // pre-LWMA value
 const uint64_t DIFFICULTY_TARGET_V1                          = 120; // LWMA-2
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
-const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1         = 3 * DIFFICULTY_TARGET;  //LWMA-2
+const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1         = 3 * DIFFICULTY_TARGET;  //LWMA
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = 240; // blocks
 const size_t   DIFFICULTY_WINDOW_V1                          = 60; // LWMA-2
@@ -83,9 +83,7 @@ const size_t   FUSION_TX_MIN_INPUT_COUNT                     = 12;
 const size_t   FUSION_TX_MIN_IN_OUT_COUNT_RATIO              = 4;
 
 const uint32_t UPGRADE_HEIGHT_V2                             = 136212;
-const uint32_t UPGRADE_HEIGHT_V3                             = 317950;
-const uint32_t UPGRADE_HEIGHT_V4                             = 338000;
-const uint32_t UPGRADE_HEIGHT_V5                             = 668946;  //June 25 12AM UTC
+const uint32_t UPGRADE_HEIGHT_V3                             = 668946;  //June 25 12AM UTC
 const unsigned UPGRADE_VOTING_THRESHOLD                      = 90; // percent
 const uint32_t UPGRADE_VOTING_WINDOW                         = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
 const uint32_t UPGRADE_WINDOW                                = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
@@ -110,8 +108,6 @@ const uint64_t GENESIS_TIMESTAMP                             = 1529201466;
 
 const uint8_t  CURRENT_TRANSACTION_VERSION                   = 1;
 const uint8_t  CURRENT_BLOCK_MAJOR                           = 1; //if put current 2 then next is 3 and soon....
-const uint8_t  NEXT_BLOCK_MAJOR                              = 2; //this need from base CURRENT_BLOCK_MAJOR
-const uint8_t  NEXT_BLOCK_MAJOR_0                            = 3; //this need from base CURRENT_BLOCK_MAJOR
 const uint8_t  NEXT_BLOCK_MAJOR_LIMIT                        = 5; //this Maximum layer block
 const uint8_t  BLOCK_MINOR_VERSION_0                         = 0;
 const uint8_t  BLOCK_MINOR_VERSION_1                         = 1;
@@ -159,6 +155,11 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   //{422,	"b1468010ba439de5ba5adb913a0292eef730fec05bbfb23dfc2f1a75f9463fed" },
   //{430,	"7da14d73833d93256d5724ed4ac62983081e34d8a3b6708f9b0eb42c228bddbb" },
   //{724,	"c6de2eadc4f184c749245d1ae0ede201fb0366f3dd8d8558b328326564d871f4" },
+};
+
+const std::map<const uint32_t, const uint8_t> Version = {
+	// {BlockIndex , Version}
+	{ 1, 1 }
 };
 
 } // CryptoNote

@@ -98,10 +98,10 @@ bool Currency::generateGenesisBlock() {
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
- if (majorVersion == NEXT_BLOCK_MAJOR) {
+ if (majorVersion == (CURRENT_BLOCK_MAJOR + 1)) {
    return m_upgradeHeightv2;
  }
- else if (majorVersion == NEXT_BLOCK_MAJOR_0) {
+ else if (majorVersion == (CURRENT_BLOCK_MAJOR + 2)) {
    return m_upgradeHeightv3;
  }else {
    return static_cast<uint32_t>(-1);
@@ -109,9 +109,9 @@ uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 size_t Currency::blockGrantedFullRewardZoneByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= NEXT_BLOCK_MAJOR_0) {
+  if (blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 2)) {
     return m_blockGrantedFullRewardZone;
-  }else if (blockMajorVersion == NEXT_BLOCK_MAJOR) {
+  }else if (blockMajorVersion == (CURRENT_BLOCK_MAJOR + 1)) {
     return CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2;
   }else {
     return CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
@@ -151,7 +151,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    }
 
       uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
-      uint64_t penalizedFee = blockMajorVersion >= NEXT_BLOCK_MAJOR ? getPenalizedAmount(fee, medianSize, currentBlockSize) : fee;
+      uint64_t penalizedFee = blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 1) ? getPenalizedAmount(fee, medianSize, currentBlockSize) : fee;
    if (cryptonoteCoinVersion() == 1) {
       penalizedFee = getPenalizedAmount(fee, medianSize, currentBlockSize);
    }
@@ -568,7 +568,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 	int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 
 	// Hardcode difficulty for 61 blocks after fork height: 
-	if (height >= parameters::UPGRADE_HEIGHT_V5 && height <= parameters::UPGRADE_HEIGHT_V5 + N) {
+	if (height >= parameters::UPGRADE_HEIGHT_V3 && height <= parameters::UPGRADE_HEIGHT_V3 + N) {
 		return 1000000000;
 	}
 
@@ -616,7 +616,7 @@ bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& bloc
 
 	bool Currency::checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
 		Crypto::Hash& proofOfWork) const {
-		if (block.majorVersion < NEXT_BLOCK_MAJOR) {
+		if (block.majorVersion < (CURRENT_BLOCK_MAJOR + 1)) {
 			return false;
 		}
 
@@ -660,8 +660,8 @@ bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& bloc
 		case CURRENT_BLOCK_MAJOR:
 			return checkProofOfWorkV1(context, block, currentDiffic, proofOfWork);
 
-		case NEXT_BLOCK_MAJOR:
-		case NEXT_BLOCK_MAJOR + 1:
+		case CURRENT_BLOCK_MAJOR + 1:
+		case CURRENT_BLOCK_MAJOR + 2:
 			return checkProofOfWorkV2(context, block, currentDiffic, proofOfWork);
 		}
 
@@ -701,6 +701,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
 
   timestampCheckWindow(parameters::BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW);
   blockFutureTimeLimit(parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT);
+  blockFutureTimeLimit_v1(parameters::CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1);
 
   moneySupply(parameters::MONEY_SUPPLY);
   emissionSpeedFactor(parameters::EMISSION_SPEED_FACTOR);

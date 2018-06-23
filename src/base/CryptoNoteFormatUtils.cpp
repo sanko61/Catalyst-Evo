@@ -461,7 +461,7 @@ bool get_block_hash(const Block& b, Hash& res) {
     return false;
   }
 
-  if (NEXT_BLOCK_MAJOR <= b.majorVersion) {
+  if ((CURRENT_BLOCK_MAJOR + 1) <= b.majorVersion) {
     BinaryArray parent_blob;
     auto serializer = makeParentBlockSerializer(b, true, false);
     if (!toBinaryArray(serializer, parent_blob))
