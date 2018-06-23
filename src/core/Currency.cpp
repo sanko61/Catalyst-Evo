@@ -583,8 +583,8 @@ difficulty_type Currency::nextDifficultyv2(std::vector<uint64_t> timestamps,
     size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_v1;
 
 	// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-	if (timestamps.size() < 4) { //this when seed more updates than new user
-		return 1; //back to 1k diff for slow hash
+	if (timestamps.size() < 10) { //this when seed more updates than new user
+		return 1000; //back to 1k diff for slow hash
 	}
 	// otherwise, use a smaller N if the start of the chain is less than N+1
 	else if (timestamps.size() < N + 1) {
