@@ -159,7 +159,7 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
 
 const std::map<const uint32_t, const uint8_t> Version = {
 	// {BlockIndex , Version}
-	{ 300000, 1 }
+	{ 2500000, 1 }
 };
 
 } // CryptoNote
