@@ -137,7 +137,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    }
    } 
    if (height > 300000) {
-   if (alreadyGeneratedCoins + m_tailemisionReward >= m_moneySupply || baseReward > m_tailemisionReward)
+   if (alreadyGeneratedCoins + CryptoNote::parameters::TAIL_EMISSION_REWARD >= m_moneySupply || baseReward < CryptoNote::parameters::TAIL_EMISSION_REWARD)
    {
       baseReward = m_tailemisionReward;
       std::cout << "Tail block reward: " << baseReward << std::endl;
