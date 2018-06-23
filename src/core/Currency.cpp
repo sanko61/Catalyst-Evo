@@ -134,7 +134,8 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    {
       baseReward = bad_tail_emission_reward;
       std::cout << "Found block reward: " << baseReward << std::endl;
-   }else if (height > 20) {
+   }} 
+   if (height > 20) {
    if (alreadyGeneratedCoins + m_tailemisionReward <= m_moneySupply || baseReward < m_tailemisionReward)
    {
       baseReward = m_tailemisionReward;
