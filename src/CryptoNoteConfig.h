@@ -48,6 +48,7 @@ const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DI
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
 const size_t   DIFFICULTY_WINDOW_V2                          = 17;  // blocks
 const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1;  // blocks
+const size_t   DIFFICULTY_CUT                                = 30;  // timestamps to cut after sorting
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 500 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 22000; // ~1 month

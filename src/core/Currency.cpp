@@ -726,6 +726,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
 
   difficultyTarget(parameters::DIFFICULTY_TARGET);
   difficultyWindow(parameters::DIFFICULTY_WINDOW);
+  difficultyCut(parameters::DIFFICULTY_CUT);
 
   depositMinAmount(parameters::DEPOSIT_MIN_AMOUNT);
   depositMinTerm(parameters::DEPOSIT_MIN_TERM);
