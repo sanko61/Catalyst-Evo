@@ -41,8 +41,7 @@ const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10000000
 const unsigned EMISSION_SPEED_FACTOR 			     = 20;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
-const uint64_t DIFFICULTY_TARGET                             = 240; // pre-LWMA value
-const uint64_t DIFFICULTY_TARGET_V1                          = 120; // LWMA-2
+const uint64_t DIFFICULTY_TARGET                             = 120; // LWMA-2
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1         = 3 * DIFFICULTY_TARGET;  //LWMA
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
