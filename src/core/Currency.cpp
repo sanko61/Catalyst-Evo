@@ -518,7 +518,7 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 // Legacy difficulty algorithm
 difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
   std::vector<difficulty_type> cumulativeDifficulties) const {
-    assert(m_difficultyWindow >= 2);
+  assert(m_difficultyWindow >= 2);
 
   if (timestamps.size() > m_difficultyWindow) {
     timestamps.resize(m_difficultyWindow);
