@@ -570,11 +570,6 @@ difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
 		nextDifficulty = harmonic_mean_D * T / LWMA;
 		next_difficulty = static_cast<uint64_t>(nextDifficulty);
 		
-		// minimum limit
-		if (next_difficulty < 100000) {
-			next_difficulty = 100000;
-		}
-
 		return next_difficulty;
 }
 
