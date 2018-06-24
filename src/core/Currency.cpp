@@ -518,49 +518,47 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 // Legacy difficulty algorithm
 difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
   std::vector<difficulty_type> cumulativeDifficulties) const {
-   // Difficulty calculation v. 2
-   // based on Zawy difficulty algorithm v1.0
-   // next Diff = Avg past N Diff * TargetInterval / Avg past N solve times
-   // as described at https://github.com/monero-project/research-lab/issues/3
-   // Window time span and total difficulty is taken instead of average as suggested by Nuclear_chaos
+    assert(m_difficultyWindow >= 2);
 
-   size_t m_difficultyWindow_2 = CryptoNote::parameters::DIFFICULTY_WINDOW_V2;
-   assert(m_difficultyWindow_2 >= 2);
+  if (timestamps.size() > m_difficultyWindow) {
+    timestamps.resize(m_difficultyWindow);
+    cumulativeDifficulties.resize(m_difficultyWindow);
+  }
 
-   if (timestamps.size() > m_difficultyWindow_2) {
-	timestamps.resize(m_difficultyWindow_2);
-	cumulativeDifficulties.resize(m_difficultyWindow_2);
-   }
+  size_t length = timestamps.size();
+  assert(length == cumulativeDifficulties.size());
+  assert(length <= m_difficultyWindow);
+  if (length <= 1) {
+    return 1;
+  }
 
-   size_t length = timestamps.size();
-   assert(length == cumulativeDifficulties.size());
-   assert(length <= m_difficultyWindow_2);
-   if (length <= 1) {
-	return 1;
-   }
+  sort(timestamps.begin(), timestamps.end());
 
-   sort(timestamps.begin(), timestamps.end());
+  size_t cutBegin, cutEnd;
+  assert(2 * m_difficultyCut <= m_difficultyWindow - 2);
+  if (length <= m_difficultyWindow - 2 * m_difficultyCut) {
+    cutBegin = 0;
+    cutEnd = length;
+  } else {
+    cutBegin = (length - (m_difficultyWindow - 2 * m_difficultyCut) + 1) / 2;
+    cutEnd = cutBegin + (m_difficultyWindow - 2 * m_difficultyCut);
+  }
+  assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
+  uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
+  if (timeSpan == 0) {
+    timeSpan = 1;
+  }
 
-   uint64_t timeSpan = timestamps.back() - timestamps.front();
-   if (timeSpan == 0) {
-	timeSpan = 1;
-   }
+  difficulty_type totalWork = cumulativeDifficulties[cutEnd - 1] - cumulativeDifficulties[cutBegin];
+  assert(totalWork > 0);
 
-   difficulty_type totalWork = cumulativeDifficulties.back() - cumulativeDifficulties.front();
-   assert(totalWork > 0);
+  uint64_t low, high;
+  low = mul128(totalWork, m_difficultyTarget, &high);
+  if (high != 0 || low + timeSpan - 1 < low) {
+    return 0;
+  }
 
-   // uint64_t nextDiffZ = totalWork * m_difficultyTarget / timeSpan; 
-
-   uint64_t low, high;
-   low = mul128(totalWork, m_difficultyTarget, &high);
-   // blockchain error "Difficulty overhead" if this function returns zero
-   if (high != 0) {
-	return 0;
-   }
-
-   uint64_t nextDiffZ = low / timeSpan;
-
-   return nextDiffZ;
+  return (low + timeSpan - 1) / timeSpan;
 }
 
 // Zawy's LMWA difficulty algo
