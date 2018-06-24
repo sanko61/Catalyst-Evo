@@ -368,7 +368,7 @@ void serializeBlockHeader(BlockHeader& header, ISerializer& serializer) {
   }
 
   serializer(header.minorVersion, "minor_version");
-  if (header.majorVersion < (CURRENT_BLOCK_MAJOR + 2)) {
+  if (header.majorVersion < (CURRENT_BLOCK_MAJOR + 1)) {
     serializer(header.timestamp, "timestamp");
     serializer(header.previousBlockHash, "prev_id");
     serializer.binary(&header.nonce, sizeof(header.nonce), "nonce");
@@ -384,7 +384,7 @@ void serialize(BlockHeader& header, ISerializer& serializer) {
 void serialize(Block& block, ISerializer& serializer) {
   serializeBlockHeader(block, serializer);
 
-  if (block.majorVersion >= (CURRENT_BLOCK_MAJOR + 2)) {
+  if (block.majorVersion >= (CURRENT_BLOCK_MAJOR + 1)) {
     auto parentBlockSerializer = makeParentBlockSerializer(block, false, false);
     serializer(parentBlockSerializer, "parent_block");
   }

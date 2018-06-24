@@ -54,7 +54,7 @@ namespace CryptoNote
     std::lock_guard<decltype(m_template_lock)> lk(m_template_lock);
 
     m_template = bl;
-    if (m_template.majorVersion >= (CURRENT_BLOCK_MAJOR + 2)) {
+    if (m_template.majorVersion >= (CURRENT_BLOCK_MAJOR + 1)) {
       CryptoNote::TransactionExtraMergeMiningTag mm_tag;
       mm_tag.depth = 0;
       if (!CryptoNote::get_aux_block_header_hash(m_template, mm_tag.merkleRoot)) {

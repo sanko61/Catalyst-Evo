@@ -114,7 +114,7 @@ uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 size_t Currency::blockGrantedFullRewardZoneByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 3)) {
+  if (blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 2)) {
     return m_blockGrantedFullRewardZone;
   } else {
     return CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
@@ -613,7 +613,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
 		Crypto::Hash& proofOfWork) const {
-		if ((CURRENT_BLOCK_MAJOR + 1) != block.majorVersion) {
+		if (CURRENT_BLOCK_MAJOR != block.majorVersion) {
 			return false;
 		}
 
@@ -626,7 +626,7 @@ bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& bloc
 
 	bool Currency::checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
 		Crypto::Hash& proofOfWork) const {
-		if (block.majorVersion < (CURRENT_BLOCK_MAJOR + 2)) {
+		if (block.majorVersion < (CURRENT_BLOCK_MAJOR + 1)) {
 			return false;
 		}
 
@@ -668,9 +668,9 @@ bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& bloc
 	bool Currency::checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const {
 		switch (block.majorVersion) {
 		case CURRENT_BLOCK_MAJOR:
-                case CURRENT_BLOCK_MAJOR + 1:
 			return checkProofOfWorkV1(context, block, currentDiffic, proofOfWork);
 
+		case CURRENT_BLOCK_MAJOR + 1:
 		case CURRENT_BLOCK_MAJOR + 2:
 		case CURRENT_BLOCK_MAJOR + 3:
                 case NEXT_BLOCK_MAJOR_LIMIT:
