@@ -56,8 +56,10 @@ bool Currency::init() {
   }
 
   if (isTestnet()) {
-    m_upgradeHeightv2 = 9;
+    m_upgradeHeightv1 = static_cast<uint32_t>(-1);
+    m_upgradeHeightv2 = static_cast<uint32_t>(-1);
     m_upgradeHeightv3 = static_cast<uint32_t>(-1);
+    m_upgradeHeightv4 = static_cast<uint32_t>(-1);
     m_blocksFileName = "testnet_" + m_blocksFileName;
     m_blocksCacheFileName = "testnet_" + m_blocksCacheFileName;
     m_blockIndexesFileName = "testnet_" + m_blockIndexesFileName;
@@ -98,22 +100,23 @@ bool Currency::generateGenesisBlock() {
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
- if (majorVersion == (CURRENT_BLOCK_MAJOR + 1)) {
-   return m_upgradeHeightv2;
- }
- else if (majorVersion == (CURRENT_BLOCK_MAJOR + 2)) {
-   return m_upgradeHeightv3;
- }else {
-   return static_cast<uint32_t>(-1);
- }
+  if (majorVersion == (CURRENT_BLOCK_MAJOR + 1)) {
+    return m_upgradeHeightv1;
+  } else if (majorVersion == (CURRENT_BLOCK_MAJOR + 2)) {
+    return m_upgradeHeightv2;
+  } else if (majorVersion == (CURRENT_BLOCK_MAJOR + 3)) {
+    return m_upgradeHeightv3;
+  } else if (majorVersion == (NEXT_BLOCK_MAJOR_LIMIT)) {
+    return m_upgradeHeightv4;
+  } else {
+    return static_cast<uint32_t>(-1);
+  }
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 size_t Currency::blockGrantedFullRewardZoneByBlockVersion(uint8_t blockMajorVersion) const {
-  if (blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 2)) {
+  if (blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 3)) {
     return m_blockGrantedFullRewardZone;
-  }else if (blockMajorVersion == (CURRENT_BLOCK_MAJOR + 1)) {
-    return CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2;
-  }else {
+  } else {
     return CryptoNote::parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1;
   }
 }
@@ -529,8 +532,8 @@ difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
 		size_t N = CryptoNote::parameters::DIFFICULTY_WINDOW_V1;
 
 		// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-		if (timestamps.size() < 4) { //change to new for nice hash put this 10 ~ Hatta
-			return 1; //put 1000 for nice hash ~ Hatta
+		if (timestamps.size() < 4) { //change to new for nice hash put this 10
+			return 1;  //nice hash put 1k
 		}
 		// otherwise, use a smaller N if the start of the chain is less than N+1
 		else if (timestamps.size() < N + 1) {
@@ -568,7 +571,7 @@ difficulty_type Currency::nextDifficulty1(std::vector<uint64_t> timestamps,
 		next_difficulty = static_cast<uint64_t>(nextDifficulty);
 		
 		// minimum limit
-		if (next_difficulty < 100000) { //ok do
+		if (next_difficulty < 100000) {
 			next_difficulty = 100000;
 		}
 
@@ -585,8 +588,8 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 	int64_t L(0), ST, sum_3_ST(0), next_D, prev_D;
 
 	// Hardcode difficulty for 61 blocks after fork height: 
-	if (height >= parameters::UPGRADE_HEIGHT_V3 && height <= parameters::UPGRADE_HEIGHT_V3 + N) {
-		return 100000; //by default put this for not overloaded diff ~ Yuka
+	if (height >= parameters::UPGRADE_HEIGHT_V4 && height <= parameters::UPGRADE_HEIGHT_V4 + N) {
+		return 1000000000; //by default put this for not overloaded diff ~ Yuka
 	}
 
 	// TS and CD vectors must be size N+1 after startup, and element N is most recent block.
@@ -620,7 +623,7 @@ difficulty_type Currency::nextDifficulty(std::vector<uint64_t> timestamps,
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
 		Crypto::Hash& proofOfWork) const {
-		if (CURRENT_BLOCK_MAJOR != block.majorVersion) {
+		if ((CURRENT_BLOCK_MAJOR + 1) != block.majorVersion) {
 			return false;
 		}
 
@@ -633,7 +636,7 @@ bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& bloc
 
 	bool Currency::checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic,
 		Crypto::Hash& proofOfWork) const {
-		if (block.majorVersion < (CURRENT_BLOCK_MAJOR + 1)) {
+		if (block.majorVersion < (CURRENT_BLOCK_MAJOR + 2)) {
 			return false;
 		}
 
@@ -675,10 +678,12 @@ bool Currency::checkProofOfWorkV1(Crypto::cn_context& context, const Block& bloc
 	bool Currency::checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const {
 		switch (block.majorVersion) {
 		case CURRENT_BLOCK_MAJOR:
+                case CURRENT_BLOCK_MAJOR + 1:
 			return checkProofOfWorkV1(context, block, currentDiffic, proofOfWork);
 
-		case CURRENT_BLOCK_MAJOR + 1:
 		case CURRENT_BLOCK_MAJOR + 2:
+		case CURRENT_BLOCK_MAJOR + 3:
+                case NEXT_BLOCK_MAJOR_LIMIT:
 			return checkProofOfWorkV2(context, block, currentDiffic, proofOfWork);
 		}
 
@@ -756,8 +761,10 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   mempoolTxFromAltBlockLiveTime(parameters::CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME);
   numberOfPeriodsToForgetTxDeletedFromPool(parameters::CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL);
 
+  upgradeHeightv1(parameters::UPGRADE_HEIGHT_V1);
   upgradeHeightv2(parameters::UPGRADE_HEIGHT_V2);
   upgradeHeightv3(parameters::UPGRADE_HEIGHT_V3);
+  upgradeHeightv4(parameters::UPGRADE_HEIGHT_V4);
   upgradeVotingThreshold(parameters::UPGRADE_VOTING_THRESHOLD);
   upgradeVotingWindow(parameters::UPGRADE_VOTING_WINDOW);
   upgradeWindow(parameters::UPGRADE_WINDOW);

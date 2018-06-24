@@ -46,7 +46,7 @@ const uint64_t DIFFICULTY_TARGET_V1                          = 120; // LWMA-2
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = 60 * 60 * 2;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1         = 3 * DIFFICULTY_TARGET;  //LWMA
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
-const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
+const size_t   DIFFICULTY_WINDOW                             = 240; // blocks
 const size_t   DIFFICULTY_WINDOW_V1                          = 60; // LWMA
 const size_t   DIFFICULTY_WINDOW_V2                          = 60 + 1; // LWMA-2
 
@@ -79,8 +79,10 @@ const size_t   FUSION_TX_MAX_SIZE                            = CRYPTONOTE_BLOCK_
 const size_t   FUSION_TX_MIN_INPUT_COUNT                     = 12;
 const size_t   FUSION_TX_MIN_IN_OUT_COUNT_RATIO              = 4;
 
-const uint32_t UPGRADE_HEIGHT_V2                             = 136212;
-const uint32_t UPGRADE_HEIGHT_V3                             = 668946;  //June 25 12AM UTC
+const uint32_t UPGRADE_HEIGHT_V1                             = 136212;
+const uint32_t UPGRADE_HEIGHT_V2                             = 317950;
+const uint32_t UPGRADE_HEIGHT_V3                             = 338000;
+const uint32_t UPGRADE_HEIGHT_V4                             = 668946;  //June 25 12AM UTC
 const unsigned UPGRADE_VOTING_THRESHOLD                      = 90; // percent
 const uint32_t UPGRADE_VOTING_WINDOW                         = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
 const uint32_t UPGRADE_WINDOW                                = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks

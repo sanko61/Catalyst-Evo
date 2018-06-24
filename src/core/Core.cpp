@@ -367,15 +367,13 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
     b = boost::value_initialized<Block>();
     b.majorVersion = m_blockchain.getBlockMajorVersionForHeight(height);
 
-    if (b.majorVersion == CURRENT_BLOCK_MAJOR) {
-      b.minorVersion = m_currency.upgradeHeight(CURRENT_BLOCK_MAJOR + 1) == UpgradeDetectorBase::UNDEF_HEIGHT ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
-    } else if (b.majorVersion >= (CURRENT_BLOCK_MAJOR + 1)) {
-      if (m_currency.upgradeHeight(CURRENT_BLOCK_MAJOR + 2) == UpgradeDetectorBase::UNDEF_HEIGHT) {
-        b.minorVersion = b.majorVersion == (CURRENT_BLOCK_MAJOR + 1) ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
+    if (b.majorVersion < (CURRENT_BLOCK_MAJOR + 2)) {
+      if (b.majorVersion == (CURRENT_BLOCK_MAJOR)) {
+        b.minorVersion = m_currency.upgradeHeight(CURRENT_BLOCK_MAJOR + 1) == UpgradeDetectorBase::UNDEF_HEIGHT ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
       } else {
-        b.minorVersion = BLOCK_MINOR_VERSION_0;
+        b.minorVersion = m_currency.upgradeHeight(CURRENT_BLOCK_MAJOR + 2) == UpgradeDetectorBase::UNDEF_HEIGHT ? BLOCK_MINOR_VERSION_1 : BLOCK_MINOR_VERSION_0;
       }
-
+    } else {
       b.parentBlock.majorVersion = CURRENT_BLOCK_MAJOR;
       b.parentBlock.majorVersion = BLOCK_MINOR_VERSION_0;
       b.parentBlock.transactionCount = 1;

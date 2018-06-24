@@ -254,8 +254,10 @@ namespace CryptoNote {
     CryptoNote::DepositIndex m_depositIndex;
     TransactionMap m_transactionMap;
     MultisignatureOutputsContainer m_multisignatureOutputs;
+    UpgradeDetector m_upgradeDetectorv1;
     UpgradeDetector m_upgradeDetectorv2;
     UpgradeDetector m_upgradeDetectorv3;
+    UpgradeDetector m_upgradeDetectorv4;
 
     PaymentIdIndex m_paymentIdIndex;
     TimestampBlocksIndex m_timestampIndex;

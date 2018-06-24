@@ -198,8 +198,10 @@ private:
   size_t m_fusionTxMinInputCount;
   size_t m_fusionTxMinInOutCountRatio;
 
+  uint32_t m_upgradeHeightv1;
   uint32_t m_upgradeHeightv2;
   uint32_t m_upgradeHeightv3;
+  uint32_t m_upgradeHeightv4;
   unsigned int m_upgradeVotingThreshold;
   uint32_t m_upgradeVotingWindow;
   uint32_t m_upgradeWindow;
@@ -291,8 +293,10 @@ public:
   CurrencyBuilder& fusionTxMinInputCount(size_t val) { m_currency.m_fusionTxMinInputCount = val; return *this; }
   CurrencyBuilder& fusionTxMinInOutCountRatio(size_t val) { m_currency.m_fusionTxMinInOutCountRatio = val; return *this; }
 
+  CurrencyBuilder& upgradeHeightv1(uint64_t val) { m_currency.m_upgradeHeightv1 = static_cast<uint32_t>(val); return *this; }
   CurrencyBuilder& upgradeHeightv2(uint64_t val) { m_currency.m_upgradeHeightv2 = static_cast<uint32_t>(val); return *this; }
   CurrencyBuilder& upgradeHeightv3(uint64_t val) { m_currency.m_upgradeHeightv3 = static_cast<uint32_t>(val); return *this; }
+  CurrencyBuilder& upgradeHeightv4(uint64_t val) { m_currency.m_upgradeHeightv4 = static_cast<uint32_t>(val); return *this; }
   CurrencyBuilder& upgradeVotingThreshold(unsigned int val);
   CurrencyBuilder& upgradeVotingWindow(size_t val) { m_currency.m_upgradeVotingWindow = static_cast<uint32_t>(val); return *this; }
   CurrencyBuilder& upgradeWindow(size_t val);

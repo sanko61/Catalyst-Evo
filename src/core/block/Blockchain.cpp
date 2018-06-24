@@ -304,8 +304,10 @@ Blockchain::Blockchain(const Currency& currency, tx_memory_pool& tx_pool, ILogge
   m_tx_pool(tx_pool),
   m_current_block_cumul_sz_limit(0),
   m_is_in_checkpoint_zone(false),
-  m_upgradeDetectorv2(currency, m_blocks, CURRENT_BLOCK_MAJOR + 1, logger),
-  m_upgradeDetectorv3(currency, m_blocks, NEXT_BLOCK_MAJOR_LIMIT, logger),
+  m_upgradeDetectorv1(currency, m_blocks, CURRENT_BLOCK_MAJOR + 1, logger),
+  m_upgradeDetectorv2(currency, m_blocks, CURRENT_BLOCK_MAJOR + 2, logger),
+  m_upgradeDetectorv3(currency, m_blocks, CURRENT_BLOCK_MAJOR + 3, logger),
+  m_upgradeDetectorv4(currency, m_blocks, NEXT_BLOCK_MAJOR_LIMIT, logger),
   m_checkpoints(logger),
   m_paymentIdIndex(blockchainIndexesEnabled),
   m_timestampIndex(blockchainIndexesEnabled),
@@ -459,28 +461,7 @@ bool Blockchain::init(const std::string& config_folder, bool load_existing) {
     rollbackBlockchainTo(lastValidCheckpointHeight);
   }
 
-  if (!m_upgradeDetectorv2.init() || !m_upgradeDetectorv3.init()) {
-    logger(ERROR, BRIGHT_RED) << "Failed to initialize upgrade detector";
-    return false;
-  }
-
-  bool reinitUpgradeDetectors = false;
-  if (!checkUpgradeHeight(m_upgradeDetectorv2)) {
-    uint32_t upgradeHeight = m_upgradeDetectorv2.upgradeHeight();
-    assert(upgradeHeight != UpgradeDetectorBase::UNDEF_HEIGHT);
-    logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real=" << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-      " expected=" << static_cast<int>(m_upgradeDetectorv2.targetVersion()) << ". Rollback blockchain to height=" << upgradeHeight;
-    rollbackBlockchainTo(upgradeHeight);
-    reinitUpgradeDetectors = true;
-  } else if (!checkUpgradeHeight(m_upgradeDetectorv3)) {
-    uint32_t upgradeHeight = m_upgradeDetectorv3.upgradeHeight();
-    logger(WARNING, BRIGHT_YELLOW) << "Invalid block version at " << upgradeHeight + 1 << ": real=" << static_cast<int>(m_blocks[upgradeHeight + 1].bl.majorVersion) <<
-      " expected=" << static_cast<int>(m_upgradeDetectorv3.targetVersion()) << ". Rollback blockchain to height=" << upgradeHeight;
-    rollbackBlockchainTo(upgradeHeight);
-    reinitUpgradeDetectors = true;
-  }
-
-  if (reinitUpgradeDetectors && (!m_upgradeDetectorv2.init() || !m_upgradeDetectorv3.init())) {
+  if (!m_upgradeDetectorv1.init() || !m_upgradeDetectorv2.init() || !m_upgradeDetectorv3.init() || !m_upgradeDetectorv4.init()) {
     logger(ERROR, BRIGHT_RED) << "Failed to initialize upgrade detector";
     return false;
   }
@@ -2103,8 +2084,10 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
 
   bvc.m_added_to_main_chain = true;
 
+  m_upgradeDetectorv1.blockPushed();
   m_upgradeDetectorv2.blockPushed();
   m_upgradeDetectorv3.blockPushed();
+  m_upgradeDetectorv4.blockPushed();
   update_next_comulative_size_limit();
 
   return true;
@@ -2184,8 +2167,10 @@ void Blockchain::popBlock() {
   saveTransactions(transactions, height);
   removeLastBlock();
 
+  m_upgradeDetectorv1.blockPopped();
   m_upgradeDetectorv2.blockPopped();
   m_upgradeDetectorv3.blockPopped();
+  m_upgradeDetectorv4.blockPopped();
 }
 
 bool Blockchain::pushTransaction(BlockEntry& block, const Crypto::Hash& transactionHash, TransactionIndex transactionIndex) {
