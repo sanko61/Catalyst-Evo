@@ -1,73 +1,89 @@
-# CryptonoteEvoV3-CLI[Beta]
-Version 3 of CryptonoteEvo. Codename : Lamda Driver
+<h2>Introduction</h2>
 
-# Requirement
+We’ve built a custom platform to Future of Cryptocurrency. CryptonoteEvo is a platform technology for next generation of cryptonight.
 
-```
-apt install build-essential
-```
+Catalyst Coin is the most secure, stable, and decentralized platform amongst the thousands of digital currencies in the market today.
+Catalyst is an innovative, cryptographically-secured digital asset ledger based on blockchain technology. Developed in part from the core code behind Karbo.
 
-Full mode + QT[for gui]
+<h2>We are trying to do things no cryptocurrency has ever done before. The Completly Masternode Solution in cryptonote world.</h2>
 
-```
-apt install build-essential libqt4-dev qt5-qmake cmake qttools5-dev libqt5webkit5-dev qttools5-dev-tools qt5-default python-sphinx texlive-latex-base inotify-tools openssl libssl-dev libdb++-dev libminiupnpc-dev git sqlite3 libsqlite3-dev g++ libpng-dev gedit python gcc make libbz2-dev libdb-dev libssl-dev  libreadline-dev autoconf libtool libleveldb-dev libblkid-dev e2fslibs-dev libboost-all-dev libaudit-dev automake nano qtbase5-dev qt4-dev-tools libncurses5-dev fakeroot wget bzip2 bison flex dctrl-tools libelf-dev libuv1-dev libmicrohttpd-dev pkg-config libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev libldns-dev libexpat1-dev doxygen graphviz screen libdb{,++}-dev libzmq3-dev
-```
+For more details visit our Website :
 
-# Installation guide
+https://catalyst.cash
 
-1. fork this and do clone from yours
-2. adding library magic
+-= Building CatalystCoin =-
 
-```
+<h2>On *nix:</h2>
+
+Dependencies: GCC 4.7.3 or later, CMake 3.11.3 or later, Boost_1_67 or later.
+
+You may download them from:
+
+http://gcc.gnu.org/
+
+http://www.cmake.org/
+
+http://www.boost.org/
+
+Alternatively, it may be possible to install them using a package manager.
+
+To build, change to a directory where this file is located, and run `make'. The resulting executables can be found in build/release/src.
+
+Advanced options:
+
+Parallel build: run `make -j<number of threads>' instead of `make'.
+
+Debug build: run `make build-debug'.
+
+Test suite: run `make test-release' to run tests in addition to building. Running `make test-debug' will do the same to the debug version.
+
+<h2>On Linux (Ubuntu 16.04):</h2>
+Install Dependencies:
+
+```bash
+apt install build-essential libqt4-dev qt5-qmake cmake qttools5-dev libqt5webkit5-dev qttools5-dev-tools qt5-default python-sphinx texlive-latex-base inotify-tools openssl libssl-dev libdb++-dev libminiupnpc-dev git sqlite3 libsqlite3-dev g++ libpng-dev gedit python gcc make libbz2-dev libdb-dev libssl-dev  libreadline-dev autoconf libtool libleveldb-dev libblkid-dev e2fslibs-dev libboost-all-dev libaudit-dev automake nano qtbase5-dev qt4-dev-tools libncurses5-dev fakeroot wget bzip2 bison flex dctrl-tools libelf-dev libuv1-dev libmicrohttpd-dev pkg-config libevent-dev libunbound-dev libminiupnpc-dev libunwind8-dev libldns-dev libexpat1-dev libgtest-dev doxygen graphviz screen curl git python
+
+sudo apt update
+
+sudo apt upgrade
+
+git clone https://github.com/CatalystCash/Catalyst-Evo.git catalyst
+cd catalyst
 git submodule init
 git submodule update --remote
+make -j4
+```
+Note : If you need cmake version error please follow below setps.
+
+```bash
+
+cd catalyst/modules/cmake
+./bootstrap && make && make install
 ```
 
-Cmake upgrade
+<h2>On Windows:</h2>
 
+Dependencies: MSVC 2017 or later, CMake 3.11.3 or later, and Boost_1_67_0-msvc-14.1 or later. You may download them from:
+
+http://www.microsoft.com/
+
+http://www.cmake.org/
+
+http://www.boost.org/
+
+To build, change to a directory where this file is located, and run this commands: (VisualStudio 2017)
+
+```bash
+git clone https://github.com/CatalystCash/Catalyst-Evo.git catalyst
+cd catalyst
+git submodule init
+git submodule update --remote
+mkdir build && cd build && cmake .. -G "Visual Studio 15 Win64" ..
 ```
-cd modules/cmake && ./bootstrap && make && make install
-```
+then open catalyst.sln File on Visual Studio
 
-3. try change setting on src/CryptonoteConfig.h and src/Cmakelist.txt
-4. save all
-5. run by do ```make```
-6. do to build/release/src/ and try ```./daemon --print-genesis-tx```
-7. copy that by replace genesis here src/CryptonoteConfig.h
-8. recompile again by ```make```
-9. run ```./daemon --testnet``` for test. or used ```./daemon```.
-10. the magic is you no need 2 seed like bytecoin. used 1 seed is ok!
-11. happy used
-12. contributor helper : src/contrib.hpp
+In VS' Solution Explorer select upnpc-static' Properies -> C/C++ -> Code Generation -> Runtime Library - > change it to Multi-threaded (/MT)
 
-# Super Nodes Feature
+And Finaly do the Build.
 
-https://github.com/FndNur1Labs/CryptonoteEvo/wiki/Super-Nodes
-
-# Donation For Support
-
-Bitcoin : 1P7ySThfyV4K3da5eQcbm8GWk33ER4DdKi
-
-Ethereum : 0x977e6df4a79a5e8cbd52ae219243b51ec2becf04
-
-Ether Classic : 0x2c9c160fb2cdc15ec5bed0071263dd5d1e124f17
-
-Litecoin : LRk34Dr56NrSnHioHuqCP24UjzMVUp8CCo
-
-Dogecoin : DJ1PHZiZvd2jBQUMSuF4uAmxrif2VT1ZFi
-
-Dash : Xvdf7tgjPJBcV8FwSvsrims3KEdVt36zqv
-
-Cardano : DdzFFzCqrhshoxQmdyt588nNpyrz9jArYiVaLBu9rtAHGSdkNC2Q3sKqdoPe3uB7GX2u3cFcq6AGTmQxqwbuk1X9H7Bo5dQAcrvoFjFx
-
-Bitcoin Cash : 1F1ioXrZvsaifcuBDW3f1rDHJssiAkRxxk
-
-Bitcoin Gold : GWc3ssM6TDuA1W3FCfsiQgare1tkCAuQ3F
-
-Bitcoin Diamond : 1553PvXLXQbMXZKEd6HnnsnNC9KXgpGi4z
-
-Waves : 3P9gJLwvaRHKw1gjwE5RWQSj3cojEmzaopg
-
-ZCoin : aHYGwDMpNcHM8eAttddbgVkVy7uNtCvdNV
-
-Main Page : https://github.com/FndNur1Labs/CryptonoteEvo
+Good luck!
