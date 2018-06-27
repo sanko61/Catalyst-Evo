@@ -87,3 +87,5 @@ In VS' Solution Explorer select upnpc-static' Properies -> C/C++ -> Code Generat
 And Finaly do the Build.
 
 Good luck!
+
+=================================Powered by Nur1Labs[twitter:@nur1labs] Engine=================================
