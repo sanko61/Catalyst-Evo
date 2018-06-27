@@ -88,4 +88,4 @@ And Finaly do the Build.
 
 Good luck!
 
-=================================Powered by Nur1Labs[twitter:@nur1labs] Engine=================================
+Powered by Nur1Labs[twitter:@nur1labs] Engine
