@@ -151,7 +151,7 @@ __attribute__((unused))
 // You may add here other checkpoints using the following format:
 // {<block height>, "<block hash>"},
 const std::initializer_list<CheckpointData> CHECKPOINTS = {
-  //{422,	"b1468010ba439de5ba5adb913a0292eef730fec05bbfb23dfc2f1a75f9463fed" },
+  {2200,	"56779e01a3fc963f5d97fdc01a2e10011fa0d662ccdddf5f8bcc344c455e5c3a" },
   //{430,	"7da14d73833d93256d5724ed4ac62983081e34d8a3b6708f9b0eb42c228bddbb" },
   //{724,	"c6de2eadc4f184c749245d1ae0ede201fb0366f3dd8d8558b328326564d871f4" },
 };
