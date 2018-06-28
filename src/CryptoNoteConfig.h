@@ -33,7 +33,7 @@ const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT                  = 8;
 
 // COIN - number of smallest units in one coin
 const uint64_t POINT                                         = UINT64_C(1000); // pow(10, 3)
-const uint64_t COIN                                          = UINT64_C(1000000); // pow(10, 6)
+const uint64_t COIN                                          = UINT64_C(100000000); // pow(10, 6)
 const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(10000000000);
 const uint64_t PRE_BLOCK_REWARD	                             = UINT64_C(84100000000000000); // premine first block
 const uint64_t MINIMUM_FEE                                   = UINT64_C(1000000); // pow(10, 4)
@@ -50,11 +50,11 @@ const size_t   DIFFICULTY_WINDOW_V2                          = 17;  // blocks
 const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1;  // blocks
 const size_t   DIFFICULTY_CUT                                = 30;  // timestamps to cut after sorting
 
-const uint64_t DEPOSIT_MIN_AMOUNT                            = 500 * COIN;
-const uint32_t DEPOSIT_MIN_TERM                              = 22000; // ~1 month
-const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 22000; // ~1 year
+const uint64_t DEPOSIT_MIN_AMOUNT                            = 1 * COIN;
+const uint32_t DEPOSIT_MIN_TERM                              = 45000; // ~1 month
+const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 45000; // ~1 year
 const uint64_t DEPOSIT_MIN_TOTAL_RATE_FACTOR                 = 0; // rate is constant
-const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 20; // percentage rate for DEPOSIT_MAX_TERM
+const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 5; // percentage rate for DEPOSIT_MAX_TERM
 static_assert(DEPOSIT_MIN_TERM > 0, "Bad DEPOSIT_MIN_TERM");
 static_assert(DEPOSIT_MIN_TERM <= DEPOSIT_MAX_TERM, "Bad DEPOSIT_MAX_TERM");
 static_assert(DEPOSIT_MIN_TERM * DEPOSIT_MAX_TOTAL_RATE > DEPOSIT_MIN_TOTAL_RATE_FACTOR, "Bad DEPOSIT_MIN_TOTAL_RATE_FACTOR or DEPOSIT_MAX_TOTAL_RATE");
@@ -152,7 +152,7 @@ __attribute__((unused))
 // {<block height>, "<block hash>"},
 const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {2200,	"56779e01a3fc963f5d97fdc01a2e10011fa0d662ccdddf5f8bcc344c455e5c3a" },
-  //{430,	"7da14d73833d93256d5724ed4ac62983081e34d8a3b6708f9b0eb42c228bddbb" },
+  {2890,	"9116ae4f2393c903ec9dcec779596b2b885141a185f075205d9778d23fe82d61" },
   //{724,	"c6de2eadc4f184c749245d1ae0ede201fb0366f3dd8d8558b328326564d871f4" },
 };
 
