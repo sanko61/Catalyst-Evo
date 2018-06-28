@@ -136,14 +136,14 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    if (alreadyGeneratedCoins + bad_tail_emission_reward <= m_moneySupply || baseReward < bad_tail_emission_reward)
    {
       baseReward = bad_tail_emission_reward;
-      std::cout << "Found block reward: " << baseReward << std::endl;
+     // std::cout << "Found block reward: " << baseReward << std::endl;
    }
    } 
    if (height > 300000) {
    if (alreadyGeneratedCoins + CryptoNote::parameters::TAIL_EMISSION_REWARD >= m_moneySupply || baseReward < CryptoNote::parameters::TAIL_EMISSION_REWARD)
    {
       baseReward = m_tailemisionReward;
-      std::cout << "Tail block reward: " << baseReward << std::endl;
+      //std::cout << "Tail block reward: " << baseReward << std::endl;
    } 
    }
       size_t blockGrantedFullRewardZone = blockGrantedFullRewardZoneByBlockVersion(blockMajorVersion);
