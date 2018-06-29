@@ -51,10 +51,10 @@ const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1;  // block
 const size_t   DIFFICULTY_CUT                                = 30;  // timestamps to cut after sorting
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 100000 * COIN;
-const uint32_t DEPOSIT_MIN_TERM                              = 45000; // ~1 month
-const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 45000; // ~1 year
+const uint32_t DEPOSIT_MIN_TERM                              = 20000; // ~1 month [this block of 1 mo]
+const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 20000; // ~1 year
 const uint64_t DEPOSIT_MIN_TOTAL_RATE_FACTOR                 = 0; // rate is constant
-const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 5; // percentage rate for DEPOSIT_MAX_TERM
+const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 45; // Apr % per year
 static_assert(DEPOSIT_MIN_TERM > 0, "Bad DEPOSIT_MIN_TERM");
 static_assert(DEPOSIT_MIN_TERM <= DEPOSIT_MAX_TERM, "Bad DEPOSIT_MAX_TERM");
 static_assert(DEPOSIT_MIN_TERM * DEPOSIT_MAX_TOTAL_RATE > DEPOSIT_MIN_TOTAL_RATE_FACTOR, "Bad DEPOSIT_MIN_TOTAL_RATE_FACTOR or DEPOSIT_MAX_TOTAL_RATE");
