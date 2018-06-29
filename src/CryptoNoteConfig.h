@@ -34,7 +34,7 @@ const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT                  = 8;
 // COIN - number of smallest units in one coin
 const uint64_t POINT                                         = UINT64_C(1000); // pow(10, 3)
 const uint64_t COIN                                          = UINT64_C(100000000); // pow(10, 6)
-const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(10000000000);
+const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(100000000);
 const uint64_t PRE_BLOCK_REWARD	                             = UINT64_C(84100000000000000); // premine first block
 const uint64_t MINIMUM_FEE                                   = UINT64_C(1000000); // pow(10, 4)
 const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(100000000); // pow(10, 4)
