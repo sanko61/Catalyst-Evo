@@ -50,7 +50,7 @@ const size_t   DIFFICULTY_WINDOW_V2                          = 17;  // blocks
 const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1;  // blocks
 const size_t   DIFFICULTY_CUT                                = 30;  // timestamps to cut after sorting
 
-const uint64_t DEPOSIT_MIN_AMOUNT                            = 1 * COIN;
+const uint64_t DEPOSIT_MIN_AMOUNT                            = 100000 * COIN;
 const uint32_t DEPOSIT_MIN_TERM                              = 45000; // ~1 month
 const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 45000; // ~1 year
 const uint64_t DEPOSIT_MIN_TOTAL_RATE_FACTOR                 = 0; // rate is constant
