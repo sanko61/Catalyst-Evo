@@ -66,6 +66,9 @@ public:
 
   unsigned int rpcTimeout() const { return m_rpcTimeout; }
   void rpcTimeout(unsigned int val) { m_rpcTimeout = val; }
+  
+  const std::string m_nodeHost;
+  const unsigned short m_nodePort;
 
 private:
   void resetInternalState();
@@ -115,8 +118,6 @@ private:
   Tools::ObserverManager<CryptoNote::INodeObserver> m_observerManager;
   Tools::ObserverManager<CryptoNote::INodeRpcProxyObserver> m_rpcProxyObserverManager;
 
-  const std::string m_nodeHost;
-  const unsigned short m_nodePort;
   unsigned int m_rpcTimeout;
   HttpClient* m_httpClient = nullptr;
   System::Event* m_httpEvent = nullptr;
