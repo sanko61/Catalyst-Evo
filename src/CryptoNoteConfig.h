@@ -153,6 +153,7 @@ __attribute__((unused))
 const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {4560,	"3b092545db29633602e3e42b0d9fd4baeb315f7266c7d61754102a128c608210" },
   {5210,	"162e5f303058adef9ccba5171319799dbf4da77fd41ada9ed990de281c97a151" },
+  {5228,	"271f92e9244ac461393b1e48f8d113b068ee8d23d286beab4bef0713ac97f8af" },
 };
 
 const std::map<const uint32_t, const uint8_t> Version = {
