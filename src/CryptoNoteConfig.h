@@ -37,7 +37,7 @@ const uint64_t COIN                                          = UINT64_C(10000000
 const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(10000000000);
 const uint64_t PRE_BLOCK_REWARD	                             = UINT64_C(84100000000000000); // premine first block
 const uint64_t MINIMUM_FEE                                   = UINT64_C(10000000); // pow(10, 4)
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(100000000); // pow(10, 4)
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10000000); // pow(10, 4)
 const unsigned EMISSION_SPEED_FACTOR 			     = 20;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
@@ -157,6 +157,7 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {4000,	"d8be2bea155b1d0e255d2d12d6492a368f0a32a1d4617dbd7a9471253851dd17" },
   {5000,	"9a7f649903c61fb9142a2d90582b02b56ba1e7ac0278466c7db51b0110989454" },
   {5893,	"1c4dfc24404823024ccd8a3bb281de3a17ca39c1ab8ba7c880001f63501f4712" },
+  {6086,	"f63d961c157fd98371f5440e24e5f4d3189ab8b38518407807569f40e2fe7b53" },
 };
 
 const std::map<const uint32_t, const uint8_t> Version = {
