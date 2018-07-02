@@ -513,7 +513,7 @@ void WalletGreen::load(const std::string& path, const std::string& password, std
     startBlockchainSynchronizer();
   } else {
     m_blockchain.push_back(m_currency.genesisBlockHash());
-    m_logger(DEBUGGING) << "Add genesis block hash to blockchain";
+    m_logger(INFO) << "Add genesis block hash to blockchain";
   }
 
   m_password = password;
@@ -621,7 +621,7 @@ void WalletGreen::exportWallet(const std::string& path, bool encrypt, WalletSave
 
     failExitHandler.cancel();
 
-    m_logger(DEBUGGING) << "Container export finished";
+    m_logger(INFO) << "Container export finished";
   } catch (const std::exception& e) {
     m_logger(ERROR, BRIGHT_RED) << "Failed to export container: " << e.what();
     startBlockchainSynchronizer();
@@ -797,7 +797,7 @@ std::string WalletGreen::addWallet(const Crypto::PublicKey& spendPublicKey, cons
     trSubscription.addObserver(this);
 
     index.insert(insertIt, std::move(wallet));
-    m_logger(DEBUGGING) << "Wallet count " << m_walletsContainer.size();
+    m_logger(INFO) << "Wallet count " << m_walletsContainer.size();
 
     if (index.size() == 1) {
       m_synchronizer.subscribeConsumerNotifications(m_viewPublicKey, this);
@@ -805,7 +805,7 @@ std::string WalletGreen::addWallet(const Crypto::PublicKey& spendPublicKey, cons
     }
 
     auto address = m_currency.accountAddressAsString({ spendPublicKey, m_viewPublicKey });
-    m_logger(DEBUGGING) << "Wallet added " << address << ", creation timestamp " << creationTimestamp;
+    m_logger(INFO) << "Wallet added " << address << ", creation timestamp " << creationTimestamp;
     return address;
   } catch (const std::exception& e) {
     m_logger(ERROR) << "Failed to add wallet: " << e.what();
@@ -864,7 +864,7 @@ void WalletGreen::deleteAddress(const std::string& address) {
   deleteFromUncommitedTransactions(deletedTransactions);
 
   m_walletsContainer.get<KeysIndex>().erase(it);
-  m_logger(DEBUGGING) << "Wallet count " << m_walletsContainer.size();
+  m_logger(INFO) << "Wallet count " << m_walletsContainer.size();
 
   if (m_walletsContainer.get<RandomAccessIndex>().size() != 0) {
     startBlockchainSynchronizer();
@@ -1150,7 +1150,7 @@ uint64_t WalletGreen::pushDonationTransferIfPossible(const DonationSettings& don
     donationAmount = calculateDonationAmount(freeAmount, donation.threshold, dustThreshold);
     if (donationAmount != 0) {
       destinations.emplace_back(WalletTransfer{ WalletTransferType::DONATION, donation.address, static_cast<int64_t>(donationAmount) });
-      m_logger(DEBUGGING) << "Added donation: address " << donation.address << ", amount " << m_currency.formatAmount(donationAmount);
+      m_logger(INFO) << "Added donation: address " << donation.address << ", amount " << m_currency.formatAmount(donationAmount);
     }
   }
 
@@ -1232,7 +1232,7 @@ void WalletGreen::validateTransactionParameters(const TransactionParameters& tra
 size_t WalletGreen::doTransfer(const TransactionParameters& transactionParameters) {
   validateTransactionParameters(transactionParameters);
   CryptoNote::AccountPublicAddress changeDestination = getChangeDestination(transactionParameters.changeDestination, transactionParameters.sourceAddresses);
-  m_logger(DEBUGGING) << "Change address " << m_currency.accountAddressAsString(changeDestination);
+  m_logger(INFO) << "Change address " << m_currency.accountAddressAsString(changeDestination);
 
   std::vector<WalletOuts> wallets;
   if (!transactionParameters.sourceAddresses.empty()) {
@@ -1287,7 +1287,7 @@ size_t WalletGreen::makeTransaction(const TransactionParameters& sendingTransact
 
   validateTransactionParameters(sendingTransaction);
   CryptoNote::AccountPublicAddress changeDestination = getChangeDestination(sendingTransaction.changeDestination, sendingTransaction.sourceAddresses);
-  m_logger(DEBUGGING) << "Change address " << m_currency.accountAddressAsString(changeDestination);
+  m_logger(INFO) << "Change address " << m_currency.accountAddressAsString(changeDestination);
 
   std::vector<WalletOuts> wallets;
   if (!sendingTransaction.sourceAddresses.empty()) {
@@ -1421,7 +1421,7 @@ void WalletGreen::updateTransactionStateAndPushEvent(size_t transactionId, Walle
     });
 
     pushEvent(makeTransactionUpdatedEvent(transactionId));
-    m_logger(DEBUGGING) << "Transaction state changed, ID " << transactionId << ", hash " << it->hash << ", new state " << it->state;
+    m_logger(INFO) << "Transaction state changed, ID " << transactionId << ", hash " << it->hash << ", new state " << it->state;
   }
 }
 
@@ -1473,7 +1473,7 @@ bool WalletGreen::updateWalletTransactionInfo(size_t transactionId, const Crypto
   assert(r);
 
   if (updated) {
-    m_logger(DEBUGGING) << "Transaction updated, ID " << transactionId <<
+    m_logger(INFO) << "Transaction updated, ID " << transactionId <<
       ", hash " << it->hash <<
       ", block " << it->blockHeight <<
       ", state " << it->state;
@@ -1505,7 +1505,7 @@ size_t WalletGreen::insertBlockchainTransaction(const TransactionInformation& in
   size_t txId = index.size();
   index.push_back(std::move(tx));
 
-  m_logger(DEBUGGING) << "Transaction added, ID " << txId <<
+  m_logger(INFO) << "Transaction added, ID " << txId <<
     ", hash " << tx.hash <<
     ", block " << tx.blockHeight <<
     ", state " << tx.state;
@@ -1743,7 +1743,7 @@ std::unique_ptr<CryptoNote::ITransaction> WalletGreen::makeTransaction(const std
     tx->signInputKey(i++, input.keyInfo, input.ephKeys);
   }
 
-  m_logger(DEBUGGING) << "Transaction created, hash " << tx->getTransactionHash() <<
+  m_logger(INFO) << "Transaction created, hash " << tx->getTransactionHash() <<
     ", inputs " << m_currency.formatAmount(tx->getInputTotalAmount()) <<
     ", outputs " << m_currency.formatAmount(tx->getOutputTotalAmount()) <<
     ", fee " << m_currency.formatAmount(tx->getInputTotalAmount() - tx->getOutputTotalAmount());
@@ -1785,7 +1785,7 @@ size_t WalletGreen::validateSaveAndSendTransaction(const ITransactionReader& tra
 
   uint64_t fee = transaction.getInputTotalAmount() - transaction.getOutputTotalAmount();
   size_t transactionId = insertOutgoingTransactionAndPushEvent(transaction.getTransactionHash(), fee, transaction.getExtra(), transaction.getUnlockTime());
-  m_logger(DEBUGGING) << "Transaction added to container, ID " << transactionId <<
+  m_logger(INFO) << "Transaction added to container, ID " << transactionId <<
     ", hash " << transaction.getTransactionHash() <<
     ", block " << m_transactions[transactionId].blockHeight <<
     ", state " << m_transactions[transactionId].state;
@@ -1809,12 +1809,12 @@ size_t WalletGreen::validateSaveAndSendTransaction(const ITransactionReader& tra
 
   if (send) {
     sendTransaction(cryptoNoteTransaction);
-    m_logger(DEBUGGING) << "Transaction sent to node, ID " << transactionId << ", hash " << transaction.getTransactionHash();
+    m_logger(INFO) << "Transaction sent to node, ID " << transactionId << ", hash " << transaction.getTransactionHash();
     updateTransactionStateAndPushEvent(transactionId, WalletTransactionState::SUCCEEDED);
   } else {
     assert(m_uncommitedTransactions.count(transactionId) == 0);
     m_uncommitedTransactions.emplace(transactionId, std::move(cryptoNoteTransaction));
-    m_logger(DEBUGGING) << "Transaction delayed, ID " << transactionId << ", hash " << transaction.getTransactionHash();
+    m_logger(INFO) << "Transaction delayed, ID " << transactionId << ", hash " << transaction.getTransactionHash();
   }
 
   rollbackAddingUnconfirmedTransaction.cancel();
@@ -1850,7 +1850,7 @@ void WalletGreen::requestMixinOuts(
 
   auto requestMixinCount = mixIn + 1; //+1 to allow to skip real output
 
-  m_logger(DEBUGGING) << "Requesting random outputs";
+  m_logger(INFO) << "Requesting random outputs";
   m_node.getRandomOutsByAmounts(std::move(amounts), requestMixinCount, mixinResult, [&requestFinished, &mixinError, this] (std::error_code ec) {
     mixinError = ec;
     this->m_dispatcher.remoteSpawn(std::bind(asyncRequestCompletion, std::ref(requestFinished)));
@@ -1865,7 +1865,7 @@ void WalletGreen::requestMixinOuts(
     throw std::system_error(mixinError);
   }
 
-  m_logger(DEBUGGING) << "Random outputs received";
+  m_logger(INFO) << "Random outputs received";
 }
 
 uint64_t WalletGreen::selectTransfers(
@@ -2307,7 +2307,7 @@ void WalletGreen::onTransactionUpdated(const Crypto::PublicKey&, const Crypto::H
 void WalletGreen::transactionUpdated(const TransactionInformation& transactionInfo, const std::vector<ContainerAmounts>& containerAmountsList) {
   System::EventLock lk(m_readyEvent);
 
-  m_logger(DEBUGGING) << "transactionUpdated event, hash " << transactionInfo.transactionHash <<
+  m_logger(INFO) << "transactionUpdated event, hash " << transactionInfo.transactionHash <<
     ", block " << transactionInfo.blockHeight <<
     ", totalAmountIn " << m_currency.formatAmount(transactionInfo.totalAmountIn) <<
     ", totalAmountOut " << m_currency.formatAmount(transactionInfo.totalAmountOut) <<
@@ -2366,7 +2366,7 @@ void WalletGreen::transactionUpdated(const TransactionInformation& transactionIn
     pushEvent(makeTransactionCreatedEvent(transactionId));
   } else if (updated) {
     if (transfersUpdated) {
-      m_logger(DEBUGGING) << "Transaction transfers updated, ID " << transactionId << ", hash " << m_transactions[transactionId].hash <<
+      m_logger(INFO) << "Transaction transfers updated, ID " << transactionId << ", hash " << m_transactions[transactionId].hash <<
         ", transfers: " << TransferListFormatter(m_currency, getTransactionTransfersRange(transactionId));
     }
 
@@ -2400,7 +2400,7 @@ void WalletGreen::onTransactionDeleted(ITransfersSubscription* object, const Has
 void WalletGreen::transactionDeleted(ITransfersSubscription* object, const Hash& transactionHash) {
   System::EventLock lk(m_readyEvent);
 
-  m_logger(DEBUGGING) << "transactionDeleted event, hash " << transactionHash;
+  m_logger(INFO) << "transactionDeleted event, hash " << transactionHash;
 
   if (m_state == WalletState::NOT_INITIALIZED) {
     return;
@@ -2614,7 +2614,7 @@ void WalletGreen::loadContainerStorage(const std::string& path) {
 
     loadSpendKeys();
 
-    m_logger(DEBUGGING) << "Container keys were successfully loaded";
+    m_logger(INFO) << "Container keys were successfully loaded";
   } catch (const std::exception& e) {
     m_logger(ERROR, BRIGHT_RED) << "Failed to load container keys: " << e.what();
 
@@ -2652,7 +2652,7 @@ void WalletGreen::loadWalletCache(std::unordered_set<Crypto::PublicKey>& addedKe
   addedKeys = std::move(s.addedKeys());
   deletedKeys = std::move(s.deletedKeys());
 
-  m_logger(DEBUGGING) << "Container cache loaded";
+  m_logger(INFO) << "Container cache loaded";
 }
 
 void WalletGreen::saveWalletCache(ContainerStorage& storage, const Crypto::chacha8_key& key, WalletSaveLevel saveLevel, const std::string& extra) {
@@ -2702,7 +2702,7 @@ void WalletGreen::saveWalletCache(ContainerStorage& storage, const Crypto::chach
 
   m_extra = extra;
 
-  m_logger(DEBUGGING) << "Container saving finished";
+  m_logger(INFO) << "Container saving finished";
 }
 
 void WalletGreen::subscribeWallets() {
@@ -2899,7 +2899,7 @@ size_t WalletGreen::createFusionTransaction(uint64_t threshold, uint64_t mixin,
   prepareInputs(fusionInputs, mixinResult, mixin, keysInfo);
 
   AccountPublicAddress destination = getChangeDestination(destinationAddress, sourceAddresses);
-  m_logger(DEBUGGING) << "Destination address " << m_currency.accountAddressAsString(destination);
+  m_logger(INFO) << "Destination address " << m_currency.accountAddressAsString(destination);
 
   std::unique_ptr<ITransaction> fusionTransaction;
   size_t transactionSize;
@@ -3281,7 +3281,7 @@ std::vector<size_t> WalletGreen::deleteTransfersForAddress(const std::string& ad
         if (!transfersLeft) {
           transaction.state = WalletTransactionState::DELETED;
           transaction.blockHeight = WALLET_UNCONFIRMED_TRANSACTION_HEIGHT;
-          m_logger(DEBUGGING) << "Transaction state changed, ID " << transactionId <<
+          m_logger(INFO) << "Transaction state changed, ID " << transactionId <<
             ", hash " << transaction.hash <<
             ", new state " << transaction.state;
         }

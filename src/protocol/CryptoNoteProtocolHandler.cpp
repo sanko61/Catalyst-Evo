@@ -282,7 +282,7 @@ int CryptoNoteProtocolHandler::handle_notify_new_transactions(int command, NOTIF
     CryptoNote::tx_verification_context tvc = boost::value_initialized<decltype(tvc)>();
     m_core.handle_incoming_tx(transactionBinary, tvc, false);
     if (tvc.m_verification_failed) {
-      logger(Logging::INFO) << context << "Tx verification failed";
+      logger(Logging::TRACE) << context << "Tx verification failed";
     }
     if (!tvc.m_verification_failed && tvc.m_should_be_relayed) {
       ++tx_blob_it;
