@@ -1,0 +1,2 @@
+/usr/bin/ar qc libprocnode.a  CMakeFiles/procnode.dir/procnode/InProcessNode.cpp.o CMakeFiles/procnode.dir/procnode/InProcessNodeErrors.cpp.o
+/usr/bin/ranlib libprocnode.a

@@ -76,7 +76,7 @@ if (MSVC)
   target_link_libraries(System ws2_32)
 endif ()
 
-target_link_libraries(daemon base p2p rpc System http log common crypto upnpc-static blockchain_explorer ${Boost_LIBRARIES} Serialization ${EXTRA_LIBRARIES})
+target_link_libraries(daemon rpc base p2p System http log common crypto upnpc-static blockchain_explorer ${Boost_LIBRARIES} Serialization ${EXTRA_LIBRARIES})
 target_link_libraries(simple_wallet wallet node_rpc_proxy transfers rpc http base System log common crypto ${Boost_LIBRARIES} Serialization Mnemonics ${EXTRA_LIBRARIES})
 target_link_libraries(payment_gate_services payment_gate json wallet node_rpc_proxy transfers base crypto p2p rpc http System log common procnode upnpc-static blockchain_explorer ${Boost_LIBRARIES} Serialization ${EXTRA_LIBRARIES})
 target_link_libraries(miner base rpc System http log common crypto ${Boost_LIBRARIES} Serialization ${EXTRA_LIBRARIES})

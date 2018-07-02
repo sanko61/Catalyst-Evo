@@ -1,0 +1,1 @@
+/usr/bin/cc -DNDEBUG -Ofast  -rdynamic CMakeFiles/testupnpreplyparse.dir/testupnpreplyparse.c.o CMakeFiles/testupnpreplyparse.dir/minixml.c.o CMakeFiles/testupnpreplyparse.dir/upnpreplyparse.c.o  -o testupnpreplyparse 

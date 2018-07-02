@@ -1,0 +1,2 @@
+/usr/bin/ar qc liblog.a  CMakeFiles/log.dir/log/CommonLogger.cpp.o CMakeFiles/log.dir/log/ConsoleLogger.cpp.o CMakeFiles/log.dir/log/FileLogger.cpp.o CMakeFiles/log.dir/log/LoggerGroup.cpp.o CMakeFiles/log.dir/log/LoggerManager.cpp.o CMakeFiles/log.dir/log/LoggerMessage.cpp.o CMakeFiles/log.dir/log/LoggerRef.cpp.o CMakeFiles/log.dir/log/StreamLogger.cpp.o
+/usr/bin/ranlib liblog.a

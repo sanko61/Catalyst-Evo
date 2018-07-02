@@ -139,7 +139,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
      // std::cout << "Found block reward: " << baseReward << std::endl;
    }
    } 
-      size_t blockGrantedFullRewardZone = blockGrantedFullRewardZoneByBlockVersion(blockMajorVersion);
+      size_t blockGrantedFullRewardZone = (height < parameters::UPGRADE_HEIGHT_V4) ? parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1 : m_blockGrantedFullRewardZone;
       medianSize = std::max(medianSize, blockGrantedFullRewardZone);
    if (currentBlockSize > UINT64_C(2) * medianSize) {
       logger(TRACE) << "Block cumulative size is too big: " << currentBlockSize << ", expected less than " << 2 * medianSize;
@@ -147,12 +147,10 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    }
 
       uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
-      uint64_t penalizedFee = blockMajorVersion >= (CURRENT_BLOCK_MAJOR + 1) ? getPenalizedAmount(fee, medianSize, currentBlockSize) : fee;
-   if (cryptonoteCoinVersion() == 1) {
-      penalizedFee = getPenalizedAmount(fee, medianSize, currentBlockSize);
-   }
-      emissionChange = penalizedBaseReward - (fee - penalizedFee);
-      reward = penalizedBaseReward + penalizedFee;
+
+      emissionChange = penalizedBaseReward;
+      reward = penalizedBaseReward + fee;
+
       return true;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
