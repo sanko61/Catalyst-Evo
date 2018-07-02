@@ -131,7 +131,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
       //std::cout << "Genesis block reward: " << baseReward << std::endl;
    }
    // Tail emission
-   if ((height >= 2) || (height == 300000)){
+   if ((height >= 2) || (height <= 300000)){
       uint64_t bad_tail_emission_reward = uint64_t(70000000000);
    if (alreadyGeneratedCoins + bad_tail_emission_reward <= m_moneySupply || baseReward < bad_tail_emission_reward)
    {
@@ -139,19 +139,20 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
      // std::cout << "Found block reward: " << baseReward << std::endl;
    }
    } 
-      size_t blockGrantedFullRewardZone = (height < parameters::UPGRADE_HEIGHT_V4) ? parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1 : m_blockGrantedFullRewardZone;
-      medianSize = std::max(medianSize, blockGrantedFullRewardZone);
+      
+   size_t blockGrantedFullRewardZone = (height < parameters::UPGRADE_HEIGHT_V4) ? parameters::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1 : m_blockGrantedFullRewardZone;
+   medianSize = std::max(medianSize, blockGrantedFullRewardZone);
    if (currentBlockSize > UINT64_C(2) * medianSize) {
       logger(TRACE) << "Block cumulative size is too big: " << currentBlockSize << ", expected less than " << 2 * medianSize;
       return false;
    }
 
-      uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
+   uint64_t penalizedBaseReward = getPenalizedAmount(baseReward, medianSize, currentBlockSize);
 
-      emissionChange = penalizedBaseReward;
-      reward = penalizedBaseReward + fee;
+   emissionChange = penalizedBaseReward;
+   reward = penalizedBaseReward + fee;
 
-      return true;
+   return true;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 uint64_t Currency::calculateInterest(uint64_t amount, uint32_t term, uint32_t height) const {
