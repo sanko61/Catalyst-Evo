@@ -713,7 +713,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
     std::getline(std::cin, userInput);
     boost::algorithm::trim(userInput);
 		
-    if (c != 'o') {
+    if (c != 'O') || (c != 'o') {
 	std::string ignoredString;
 	std::string walletFileName;
 				
