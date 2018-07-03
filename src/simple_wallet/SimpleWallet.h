@@ -27,16 +27,17 @@
 std::string remote_fee_address;
 
 namespace{
-	Tools::PasswordContainer pwd_container;
+  Tools::PasswordContainer pwd_container;
 }
 
-namespace CryptoNote
-{
+namespace CryptoNote {
   /************************************************************************/
   /*                                                                      */
   /************************************************************************/
   class simple_wallet : public CryptoNote::INodeObserver, public CryptoNote::IWalletLegacyObserver, public CryptoNote::INodeRpcProxyObserver {
+	  
   public:
+  
     simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::Currency& currency, Logging::LoggerManager& log);
 
     bool init(const boost::program_options::variables_map& vm);
@@ -99,8 +100,7 @@ namespace CryptoNote
     bool ask_wallet_create_if_needed();
 
 #ifndef __ANDROID__
- 	std::string resolveAlias(const std::string& aliasUrl);
- 	bool fetch_dns_txt(const std::string domain, std::string &record);
+    std::string resolveAlias(const std::string& aliasUrl);
 #endif
 
     void printConnectionError() const;
@@ -118,19 +118,18 @@ namespace CryptoNote
 
     friend class refresh_progress_reporter_t;
 
-    class refresh_progress_reporter_t
-    {
+    class refresh_progress_reporter_t {
+		
     public:
+	
       refresh_progress_reporter_t(CryptoNote::simple_wallet& simple_wallet)
         : m_simple_wallet(simple_wallet)
         , m_blockchain_height(0)
         , m_blockchain_height_update_time()
-        , m_print_time()
-      {
+        , m_print_time() {
       }
 
-      void update(uint64_t height, bool force = false)
-      {
+      void update(uint64_t height, bool force = false) {
         auto current_time = std::chrono::system_clock::now();
         if (std::chrono::seconds(m_simple_wallet.currency().difficultyTarget() / 2) < current_time - m_blockchain_height_update_time ||
             m_blockchain_height <= height) {
@@ -145,14 +144,15 @@ namespace CryptoNote
       }
 
     private:
-      void update_blockchain_height()
-      {
+	
+      void update_blockchain_height() {
         uint64_t blockchain_height = m_simple_wallet.m_node->getLastLocalBlockHeight();
         m_blockchain_height = blockchain_height;
         m_blockchain_height_update_time = std::chrono::system_clock::now();
       }
 
     private:
+	
       CryptoNote::simple_wallet& m_simple_wallet;
       uint64_t m_blockchain_height;
       std::chrono::system_clock::time_point m_blockchain_height_update_time;
@@ -160,6 +160,7 @@ namespace CryptoNote
     };
 
   private:
+  
     std::string m_wallet_file_arg;
     std::string m_generate_new;
     std::string m_import_new;
