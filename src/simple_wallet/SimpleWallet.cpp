@@ -16,10 +16,16 @@
 #include <map>
 
 #include <boost/bind.hpp>
+#if defined __linux__ && !defined __ANDROID__
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#endif
+#include <boost/filesystem.hpp>
+#if defined __linux__ && !defined __ANDROID__
+#undef BOOST_NO_CXX11_SCOPED_ENUMS
+#endif
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/utility/value_init.hpp>
 
 #include "common/CommandLine.h"
@@ -70,7 +76,7 @@ namespace po = boost::program_options;
 #undef ERROR
 
 namespace {
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 const command_line::arg_descriptor<std::string> arg_config_file = { "config-file", "Specify configuration file", "" };
 const command_line::arg_descriptor<std::string> arg_wallet_file = { "wallet-file", "Use wallet <arg>", "" };
 const command_line::arg_descriptor<std::string> arg_generate_new_wallet = { "generate-new-wallet", "Generate new wallet and save it to <arg>", "" };
@@ -87,7 +93,7 @@ const command_line::arg_descriptor<uint32_t> arg_log_level = { "log-level", "Set
 const command_line::arg_descriptor<bool> arg_testnet = { "testnet", "Used to deploy test nets. The daemon must be launched with --testnet flag", false };
 const command_line::arg_descriptor<bool> arg_reset = { "reset", "Discard cache data and start synchronizing from scratch", false };
 const command_line::arg_descriptor< std::vector<std::string> > arg_command = { "command", "" };
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool parseUrlAddress(const std::string& url, std::string& address, uint16_t& port) {
   auto pos = url.find("://");
   size_t addrStart = 0;
@@ -110,8 +116,7 @@ bool parseUrlAddress(const std::string& url, std::string& address, uint16_t& por
   address = url.substr(addrStart, addrEnd - addrStart);
   return true;
 }
-
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 inline std::string interpret_rpc_response(bool ok, const std::string& status) {
   std::string err;
   if (ok) {
@@ -125,9 +130,10 @@ inline std::string interpret_rpc_response(bool ok, const std::string& status) {
   }
   return err;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 template <typename IterT, typename ValueT = typename IterT::value_type>
 class ArgumentReader {
+	
 public:
 
   ArgumentReader(IterT begin, IterT end) :
@@ -152,7 +158,7 @@ private:
   IterT m_begin;
   IterT m_end;
 };
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 struct TransferCommand {
   const CryptoNote::Currency& m_currency;
   size_t fake_outs_count;
@@ -296,7 +302,7 @@ struct TransferCommand {
     return true;
   }
 };
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
   JsonValue loggerConfiguration(JsonValue::OBJECT);
   loggerConfiguration.insert("globalLevel", static_cast<int64_t>(level));
@@ -315,7 +321,7 @@ JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
 
   return loggerConfiguration;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::error_code initAndLoadWallet(IWalletLegacy& wallet, std::istream& walletFile, const std::string& password) {
   WalletHelper::InitWalletResultObserver initObserver;
   std::future<std::error_code> f_initError = initObserver.initResult.get_future();
@@ -326,7 +332,7 @@ std::error_code initAndLoadWallet(IWalletLegacy& wallet, std::istream& walletFil
 
   return initError;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::string tryToOpenWalletOrLoadKeysOrThrow(LoggerRef& logger, std::unique_ptr<IWalletLegacy>& wallet, const std::string& walletFile, const std::string& password) {
   std::string keys_file, walletFileName;
   WalletHelper::prepareFileNames(walletFile, keys_file, walletFileName);
@@ -416,7 +422,7 @@ std::string tryToOpenWalletOrLoadKeysOrThrow(LoggerRef& logger, std::unique_ptr<
     throw std::runtime_error("wallet file '" + walletFileName + "' is not found");
   }
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::string makeCenteredString(size_t width, const std::string& text) {
   if (text.size() >= width) {
     return text;
@@ -425,14 +431,14 @@ std::string makeCenteredString(size_t width, const std::string& text) {
   size_t offset = (width - text.size() + 1) / 2;
   return std::string(offset, ' ') + text + std::string(width - text.size() - offset, ' ');
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 const size_t TIMESTAMP_MAX_WIDTH = 19;
 const size_t HASH_MAX_WIDTH = 64;
 const size_t TOTAL_AMOUNT_MAX_WIDTH = 20;
 const size_t FEE_MAX_WIDTH = 14;
 const size_t BLOCK_MAX_WIDTH = 7;
 const size_t UNLOCK_TIME_MAX_WIDTH = 11;
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void printListTransfersHeader(LoggerRef& logger) {
   std::string header = makeCenteredString(TIMESTAMP_MAX_WIDTH, "timestamp (UTC)") + "  ";
   header += makeCenteredString(HASH_MAX_WIDTH, "hash") + "  ";
@@ -444,7 +450,7 @@ void printListTransfersHeader(LoggerRef& logger) {
   logger(INFO) << header;
   logger(INFO) << std::string(header.size(), '-');
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void printListTransfersItem(LoggerRef& logger, const WalletLegacyTransaction& txInfo, IWalletLegacy& wallet, const Currency& currency) {
   std::vector<uint8_t> extraVec = Common::asBinaryArray(txInfo.extra);
 
@@ -483,11 +489,11 @@ void printListTransfersItem(LoggerRef& logger, const WalletLegacyTransaction& tx
 
   logger(INFO, rowColor) << " "; //just to make logger print one endline
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::string prepareWalletAddressFilename(const std::string& walletBaseName) {
   return walletBaseName + ".address";
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool writeAddressFile(const std::string& addressFilename, const std::string& address) {
   std::ofstream addressFile(addressFilename, std::ios::out | std::ios::trunc | std::ios::binary);
   if (!addressFile.good()) {
@@ -498,7 +504,7 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
 
   return true;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 #ifndef __ANDROID__
 bool processServerAliasResponse(const std::string& s, std::string& address) {
 	try {
@@ -532,7 +538,7 @@ bool processServerAliasResponse(const std::string& s, std::string& address) {
 
 	return true;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool askAliasesTransfersConfirmation(const std::map<std::string, std::vector<WalletLegacyTransfer>>& aliases, const Currency& currency) {
 	std::cout << "Would you like to send money to the following addresses?" << std::endl;
 
@@ -551,7 +557,7 @@ bool askAliasesTransfersConfirmation(const std::map<std::string, std::vector<Wal
 	return answer == "y" || answer == "Y";
 }
 #endif
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
     try {
         std::stringstream stream(response);
@@ -571,10 +577,9 @@ bool processServerFeeAddressResponse(const std::string& response, std::string& f
 
     return true;
 }
-
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::string simple_wallet::get_commands_str() {
   std::stringstream ss;
   ss << "Commands: " << ENDL;
@@ -584,12 +589,12 @@ std::string simple_wallet::get_commands_str() {
   ss << usage << ENDL;
   return ss.str();
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::help(const std::vector<std::string> &args/* = std::vector<std::string>()*/) {
   success_msg_writer() << get_commands_str();
   return true;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::seed(const std::vector<std::string> &args/* = std::vector<std::string>()*/) {
   std::string electrum_words;
   bool success = m_wallet->getSeed(electrum_words);
@@ -603,14 +608,15 @@ bool simple_wallet::seed(const std::vector<std::string> &args/* = std::vector<st
   {
     fail_msg_writer() << "The wallet is non-deterministic and doesn't have mnemonic seed.";
   }
+  
   return true;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::exit(const std::vector<std::string> &args) {
   m_consoleHandler.requestStop();
   return true;
 }
-
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::Currency& currency, Logging::LoggerManager& log) :
   m_dispatcher(dispatcher),
   m_daemon_port(0), 
@@ -647,7 +653,7 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   m_consoleHandler.setHandler("help", boost::bind(&simple_wallet::help, this, _1), "Show this help");
 m_consoleHandler.setHandler("exit", boost::bind(&simple_wallet::exit, this, _1), "Close wallet");
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::set_log(const std::vector<std::string> &args) {
   if (args.size() != 1) {
     fail_msg_writer() << "use: set_log <log_level_number_0-4>";
@@ -668,12 +674,12 @@ bool simple_wallet::set_log(const std::vector<std::string> &args) {
   m_logManager.setMaxLevel(static_cast<Logging::Level>(l));
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::payment_id(const std::vector<std::string> &args) {
   success_msg_writer() << "Payment ID: " << Crypto::rand<Crypto::Hash>();
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::init(const boost::program_options::variables_map& vm) {
   handle_command_line(vm);
 
@@ -695,7 +701,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
   do {
      std::string answer;
      std::getline(std::cin, answer);
-			c = answer[0];
+     c = answer[0];
   if (!(c == 'O' || c == 'G' || c == 'E' || c == 'I' || c == 'R' || c == 'T' || c == 'o' || c == 'g' || c == 'e' || c == 'i' || c == 'r' || c == 't' ))
 				std::cout << "Unknown command: " << c <<std::endl;
   else
@@ -713,7 +719,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
     std::getline(std::cin, userInput);
     boost::algorithm::trim(userInput);
 		
-    if (c != 'O') || (c != 'o') {
+    if (c != 'o') {
 	std::string ignoredString;
 	std::string walletFileName;
 				
@@ -1068,7 +1074,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
 
 	return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::deinit() {
   m_wallet->removeObserver(this);
   m_node->removeObserver(static_cast<INodeObserver*>(this));
@@ -1079,7 +1085,7 @@ bool simple_wallet::deinit() {
 
   return close_wallet();
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void simple_wallet::handle_command_line(const boost::program_options::variables_map& vm) {
   m_wallet_file_arg = command_line::get_arg(vm, arg_wallet_file);
   m_generate_new = command_line::get_arg(vm, arg_generate_new_wallet);
@@ -1386,8 +1392,7 @@ bool simple_wallet::close_wallet()
 
   return true;
 }
-
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::save(const std::vector<std::string> &args)
 {
   try {
@@ -1399,7 +1404,7 @@ bool simple_wallet::save(const std::vector<std::string> &args)
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::reset(const std::vector<std::string> &args) {
   {
     std::unique_lock<std::mutex> lock(m_walletSynchronizedMutex);
@@ -1418,7 +1423,7 @@ bool simple_wallet::reset(const std::vector<std::string> &args) {
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::change_password(const std::vector<std::string>& args) {
   std::cout << "Old ";
   m_consoleHandler.pause();
@@ -1445,7 +1450,7 @@ bool simple_wallet::change_password(const std::vector<std::string>& args) {
 	success_msg_writer(true) << "Password changed.";
 	return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::start_mining(const std::vector<std::string>& args) {
   COMMAND_RPC_START_MINING::request req;
   req.miner_address = m_wallet->getAddress();
@@ -1491,7 +1496,7 @@ bool simple_wallet::start_mining(const std::vector<std::string>& args) {
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::stop_mining(const std::vector<std::string>& args)
 {
   COMMAND_RPC_STOP_MINING::request req;
@@ -1514,13 +1519,13 @@ bool simple_wallet::stop_mining(const std::vector<std::string>& args)
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void simple_wallet::initCompleted(std::error_code result) {
   if (m_initResultPromise.get() != nullptr) {
     m_initResultPromise->set_value(result);
   }
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void simple_wallet::connectionStatusUpdated(bool connected) {
   if (connected) {
     logger(INFO, GREEN) << "Wallet connected to daemon.";
@@ -1528,7 +1533,7 @@ void simple_wallet::connectionStatusUpdated(bool connected) {
     printConnectionError();
   }
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void simple_wallet::externalTransactionCreated(CryptoNote::TransactionId transactionId)  {
   WalletLegacyTransaction txInfo;
   m_wallet->getTransaction(transactionId, txInfo);
@@ -1556,7 +1561,7 @@ void simple_wallet::externalTransactionCreated(CryptoNote::TransactionId transac
     m_refresh_progress_reporter.update(txInfo.blockHeight, true);
   }
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void simple_wallet::synchronizationCompleted(std::error_code result) {
   std::unique_lock<std::mutex> lock(m_walletSynchronizedMutex);
   m_walletSynchronized = true;
@@ -1569,7 +1574,7 @@ void simple_wallet::synchronizationProgressUpdated(uint32_t current, uint32_t to
     m_refresh_progress_reporter.update(current, false);
   }
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
   AccountKeys keys;
   m_wallet->getAccountKeys(keys);
@@ -1580,7 +1585,7 @@ bool simple_wallet::export_keys(const std::vector<std::string>& args/* = std::ve
   
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::export_tracking_key(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
     AccountKeys keys;
     m_wallet->getAccountKeys(keys);
@@ -1588,11 +1593,11 @@ bool simple_wallet::export_tracking_key(const std::vector<std::string>& args/* =
     keys.spendSecretKey = boost::value_initialized<Crypto::SecretKey>();
     success_msg_writer(true) << "Tracking key: " << spend_public_key << Common::podToHex(keys.address.viewPublicKey) << Common::podToHex(keys.spendSecretKey) << Common::podToHex(keys.viewSecretKey);
     // This will show Tracking Key in style of Private Key Backup or Paperwallet, to prevent confusing we use above style of Bytecoin like tracking keys
-    // success_msg_writer(true) << "Tracking key: " << Tools::Base58::encode_addr(parameters::CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX, std::string(reinterpret_cast<char*>(&keys), sizeof(keys)));
+    // success_msg_writer(true) << "Tracking key: " << Tools::Base58::encode_addr(CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX, std::string(reinterpret_cast<char*>(&keys), sizeof(keys)));
 
     return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::show_balance(const std::vector<std::string>& args/* = std::vector<std::string>()*/) {
   success_msg_writer() << "available balance: " << m_currency.formatAmount(m_wallet->actualBalance()) <<
     ", locked amount: " << m_currency.formatAmount(m_wallet->pendingBalance()) <<
@@ -1600,13 +1605,13 @@ bool simple_wallet::show_balance(const std::vector<std::string>& args/* = std::v
     ", unmixable dust: " << m_currency.formatAmount(m_wallet->dustBalance());
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::show_incoming_transfers(const std::vector<std::string>& args) {
   bool hasTransfers = false;
   size_t transactionsCount = m_wallet->getTransactionCount();
-  for (size_t trantransactionNumber = 0; trantransactionNumber < transactionsCount; ++trantransactionNumber) {
+  for (size_t transactionNumber  = 0; transactionNumber  < transactionsCount; ++transactionNumber ) {
     WalletLegacyTransaction txInfo;
-    m_wallet->getTransaction(trantransactionNumber, txInfo);
+    m_wallet->getTransaction(transactionNumber , txInfo);
     if (txInfo.totalAmount < 0) continue;
     hasTransfers = true;
     logger(INFO) << "        amount       \t                              tx id";
@@ -1617,7 +1622,7 @@ bool simple_wallet::show_incoming_transfers(const std::vector<std::string>& args
   if (!hasTransfers) success_msg_writer() << "No incoming transfers";
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args) {
   bool hasTransfers = false;
   size_t transactionsCount = m_wallet->getTransactionCount();
@@ -1629,24 +1634,24 @@ bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args
     logger(INFO) << "        amount       \t                              tx id";
 	logger(INFO, BRIGHT_MAGENTA) << std::setw(TOTAL_AMOUNT_MAX_WIDTH) << m_currency.formatAmount(txInfo.totalAmount) << '\t' << Common::podToHex(txInfo.hash);
 
-	for (TransferId id = txInfo.firstTransferId; id < txInfo.firstTransferId + txInfo.transferCount; ++id) {
-		WalletLegacyTransfer tr;
-		m_wallet->getTransfer(id, tr);
-		logger(INFO, MAGENTA) << std::setw(TOTAL_AMOUNT_MAX_WIDTH) << m_currency.formatAmount(-tr.amount) << '\t' << tr.address;
-	}
+    for (TransferId id = txInfo.firstTransferId; id < txInfo.firstTransferId + txInfo.transferCount; ++id) {
+	WalletLegacyTransfer tr;
+	m_wallet->getTransfer(id, tr);
+	logger(INFO, MAGENTA) << std::setw(TOTAL_AMOUNT_MAX_WIDTH) << m_currency.formatAmount(-tr.amount) << '\t' << tr.address;
+    }
   }
 
   if (!hasTransfers) success_msg_writer() << "No outgoing transfers";
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::listTransfers(const std::vector<std::string>& args) {
   bool haveTransfers = false;
 
   size_t transactionsCount = m_wallet->getTransactionCount();
-  for (size_t trantransactionNumber = 0; trantransactionNumber < transactionsCount; ++trantransactionNumber) {
+  for (size_t transactionNumber  = 0; transactionNumber  < transactionsCount; ++transactionNumber ) {
     WalletLegacyTransaction txInfo;
-    m_wallet->getTransaction(trantransactionNumber, txInfo);
+    m_wallet->getTransaction(transactionNumber, txInfo);
     if (txInfo.state != WalletLegacyTransactionState::Active || txInfo.blockHeight == WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT) {
       continue;
     }
@@ -1665,54 +1670,53 @@ bool simple_wallet::listTransfers(const std::vector<std::string>& args) {
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::show_payments(const std::vector<std::string> &args) {
   if (args.empty()) {
     fail_msg_writer() << "expected at least one payment ID";
     return true;
   }
 
-  try {
-    auto hashes = args;
-    std::sort(std::begin(hashes), std::end(hashes));
-    hashes.erase(std::unique(std::begin(hashes), std::end(hashes)), std::end(hashes));
-    std::vector<PaymentId> paymentIds;
-    paymentIds.reserve(hashes.size());
-    std::transform(std::begin(hashes), std::end(hashes), std::back_inserter(paymentIds), [](const std::string& arg) {
-      PaymentId paymentId;
-      if (!CryptoNote::parsePaymentId(arg, paymentId)) {
-        throw std::runtime_error("payment ID has invalid format: \"" + arg + "\", expected 64-character string");
+  logger(INFO) << "                            payment                             \t" <<
+    "                          transaction                           \t" <<
+    "  height\t       amount        ";
+
+  bool payments_found = false;
+  for (const std::string& arg: args) {
+    Crypto::Hash expectedPaymentId;
+    if (CryptoNote::parsePaymentId(arg, expectedPaymentId)) {
+      size_t transactionsCount = m_wallet->getTransactionCount();
+      for (size_t transactionNumber = 0; transactionNumber < transactionsCount; ++transactionNumber) {
+        WalletLegacyTransaction txInfo;
+        m_wallet->getTransaction(transactionNumber, txInfo);
+        if (txInfo.totalAmount < 0) continue;
+        std::vector<uint8_t> extraVec;
+        extraVec.reserve(txInfo.extra.size());
+        std::for_each(txInfo.extra.begin(), txInfo.extra.end(), [&extraVec](const char el) { extraVec.push_back(el); });
+
+        Crypto::Hash paymentId;
+        if (CryptoNote::getPaymentIdFromTxExtra(extraVec, paymentId) && paymentId == expectedPaymentId) {
+          payments_found = true;
+          success_msg_writer(true) <<
+            paymentId << "\t\t" <<
+            Common::podToHex(txInfo.hash) <<
+            std::setw(8) << txInfo.blockHeight << '\t' <<
+            std::setw(21) << m_currency.formatAmount(txInfo.totalAmount);// << '\t' <<
+        }
       }
 
-      return paymentId;
-    });
-
-    logger(INFO) << "                            payment                             \t" <<
-      "                          transaction                           \t" <<
-      "  height\t       amount        ";
-
-    auto payments = m_wallet->getTransactionsByPaymentIds(paymentIds);
-
-    for (auto& payment : payments) {
-      for (auto& transaction : payment.transactions) {
-        success_msg_writer(true) <<
-          Common::podToHex(payment.paymentId) << '\t' <<
-          Common::podToHex(transaction.hash) << '\t' <<
-          std::setw(8) << transaction.blockHeight << '\t' <<
-          std::setw(21) << m_currency.formatAmount(transaction.totalAmount);
+      if (!payments_found) {
+        success_msg_writer() << "No payments with id " << expectedPaymentId;
+        continue;
       }
-
-      if (payment.transactions.empty()) {
-        success_msg_writer() << "No payments with id " << Common::podToHex(payment.paymentId);
-      }
+    } else {
+      fail_msg_writer() << "payment ID has invalid format: \"" << arg << "\", expected 64-character string";
     }
-  } catch (std::exception& e) {
-    fail_msg_writer() << "show_payments exception: " << e.what();
   }
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::show_blockchain_height(const std::vector<std::string>& args) {
   try {
     uint64_t bc_height = m_node->getLastLocalBlockHeight();
@@ -1724,106 +1728,27 @@ bool simple_wallet::show_blockchain_height(const std::vector<std::string>& args)
   return true;
 }
 #ifndef __ANDROID__
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::string simple_wallet::resolveAlias(const std::string& aliasUrl) {
-	std::string host;
-	std::string uri;
-	std::string record;
-	std::string address;
+  std::string host;
+  std::string uri;
+  std::vector<std::string>records;
+  std::string address;
 
-	// DNS Lookup
-	if (!fetch_dns_txt(aliasUrl, record)) {
-		throw std::runtime_error("Failed to lookup DNS record");
+  if (!Common::fetch_dns_txt(aliasUrl, records)) {
+	throw std::runtime_error("Failed to lookup DNS record");
+  }
+
+  for (const auto& record : records) {
+	if (processServerAliasResponse(record, address)) {
+		return address;
 	}
-
-	if (!processServerAliasResponse(record, address)) {
-		throw std::runtime_error("Failed to parse server response");
-	}
-	
-	return address;
-}
-
-bool simple_wallet::fetch_dns_txt(const std::string domain, std::string &record) {
-
-#ifdef WIN32
-	using namespace std;
-
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Dnsapi.lib")
-
-	PDNS_RECORD pDnsRecord;          //Pointer to DNS_RECORD structure.
-
-	{
-		WORD type = DNS_TYPE_TEXT;
-
-		if (0 != DnsQuery_A(domain.c_str(), type, DNS_QUERY_BYPASS_CACHE, NULL, &pDnsRecord, NULL))
-		{
-			cerr << "Error querying: '" << domain << "'" << endl;
-			return false;
-		}
-	}
-
-	PDNS_RECORD it;
-	map<WORD, function<void(void)>> callbacks;
-	
-	callbacks[DNS_TYPE_TEXT] = [&it,&record](void) -> void {
-		std::stringstream stream;
-		for (DWORD i = 0; i < it->Data.TXT.dwStringCount; i++) {
-			stream << RPC_CSTR(it->Data.TXT.pStringArray[i]) << endl;;
-		}
-		record = stream.str();
-	};
-
-	for (it = pDnsRecord; it != NULL; it = it->pNext) {
-		if (callbacks.count(it->wType)) {
-			callbacks[it->wType]();
-		}
-	}
-	DnsRecordListFree(pDnsRecord, DnsFreeRecordListDeep);
-# else
-	using namespace std;
-
-	res_init();
-	ns_msg nsMsg;
-	int response;
-	unsigned char query_buffer[1024];
-	{
-		ns_type type = ns_t_txt;
-
-		const char * c_domain = (domain).c_str();
-		response = res_query(c_domain, 1, type, query_buffer, sizeof(query_buffer));
-
-		if (response < 0)
-			return 1;
-	}
-
-	ns_initparse(query_buffer, response, &nsMsg);
-
-	map<ns_type, function<void(const ns_rr &rr)>> callbacks;
-
-	callbacks[ns_t_txt] = [&nsMsg,&record](const ns_rr &rr) -> void {
-		std::stringstream stream;
-		stream << ns_rr_rdata(rr) + 1 << endl;
-		record = stream.str();
-	};
-
-	for (int x = 0; x < ns_msg_count(nsMsg, ns_s_an); x++) {
-		ns_rr rr;
-		ns_parserr(&nsMsg, ns_s_an, x, &rr);
-		ns_type type = ns_rr_type(rr);
-		if (callbacks.count(type)) {
-			callbacks[type](rr);
-		}
-	}
-
-#endif
-	if (record.empty())
-		return false;
-
-	return true;
+  }
+  
+  throw std::runtime_error("Failed to parse server response");
 }
 #endif
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 std::string simple_wallet::getFeeAddress() {
   
   HttpClient httpClient(m_dispatcher, m_daemon_host, m_daemon_port);
@@ -1850,7 +1775,7 @@ std::string simple_wallet::getFeeAddress() {
 
   return address;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::transfer(const std::vector<std::string> &args) {
   if (m_trackingWallet){
     fail_msg_writer() << "This is tracking wallet. Spending is impossible.";
@@ -1938,7 +1863,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
 
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::sweep_dust(const std::vector<std::string>& args) {
   if (m_trackingWallet) {
      fail_msg_writer() << "This is tracking wallet. Spending is impossible.";
@@ -1997,7 +1922,7 @@ bool simple_wallet::sweep_dust(const std::vector<std::string>& args) {
  
    return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::run() {
   {
     std::unique_lock<std::mutex> lock(m_walletSynchronizedMutex);
@@ -2012,16 +1937,16 @@ bool simple_wallet::run() {
   m_consoleHandler.start(false, "[wallet " + addr_start + "]: ", Common::Console::Color::BrightYellow);
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 void simple_wallet::stop() {
   m_consoleHandler.requestStop();
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::print_address(const std::vector<std::string> &args/* = std::vector<std::string>()*/) {
   success_msg_writer() << m_wallet->getAddress();
   return true;
 }
-//----------------------------------------------------------------------------------------------------
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
 bool simple_wallet::process_command(const std::vector<std::string> &args) {
   return m_consoleHandler.runCommand(args);
 }
@@ -2182,7 +2107,7 @@ int main(int argc, char* argv[]) {
       walletFileName = ::tryToOpenWalletOrLoadKeysOrThrow(logger, wallet, wallet_file, wallet_password);
 
       logger(INFO) << "available balance: " << currency.formatAmount(wallet->actualBalance()) <<
-      ", locked amount: " << currency.formatAmount(wallet->pendingBalance());
+      ", locked amount: " << currency.formatAmount(wallet->pendingBalance()) << ", unmixable dust: " << currency.formatAmount(wallet->dustBalance());
 
       logger(INFO, BRIGHT_GREEN) << "Loaded ok";
     } catch (const std::exception& e)  {
@@ -2241,3 +2166,4 @@ int main(int argc, char* argv[]) {
   return 1;
   //CATCH_ENTRY_L0("main", 1);
 }
+//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
