@@ -36,8 +36,8 @@ const uint64_t POINT                                         = UINT64_C(1000); /
 const uint64_t COIN                                          = UINT64_C(100000000); // pow(10, 6)
 const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(10000000000);
 const uint64_t PRE_BLOCK_REWARD	                             = UINT64_C(84100000000000000); // premine first block
-const uint64_t MINIMUM_FEE                                   = UINT64_C(10000000); // pow(10, 4)
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(100000000); // pow(10, 4)
+const uint64_t MINIMUM_FEE                                   = UINT64_C(50000000); // pow(10, 4)
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10000000); // pow(10, 4)
 const unsigned EMISSION_SPEED_FACTOR 			     = 20;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
@@ -136,7 +136,7 @@ const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "FF9507CA55455F37
 const std::initializer_list<const char*> SEED_NODES = {
   "seed1.catalyst.cash:5290",
   "seed2.catalyst.cash:5290",
-  //"seed3.catalyst.cash:4090",
+  "182.0.141.127:5290",
 };
 
 struct CheckpointData {
@@ -157,6 +157,8 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {4000,	"d8be2bea155b1d0e255d2d12d6492a368f0a32a1d4617dbd7a9471253851dd17" },	
   {5730,	"7a8e192ca2334cc6d369575acb7731b6d8ee75d6ea1d286c8550a147fa8bcb2a" },
   {5820,	"1dd963fa6f02f4115a63419e0d64e005ca046a985c5303a4d9d4d0c8dda45dd3" },
+  {6149,	"ba6e50247e73f02ea9961aa2b91ecaab63c50d0fd8f2c5e2c007fb978ee2a649" },
+  {6431,	"57bd7d6c9921d934086c098f74c4ea410471e9b4729fe2e3d408a16a55f0ea2b" },
 };
 
 const std::map<const uint32_t, const uint8_t> Version = {

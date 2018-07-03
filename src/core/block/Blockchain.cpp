@@ -914,21 +914,18 @@ bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) 
   if (!(b.baseTransaction.inputs.size() == 1)) {
     logger(ERROR, BRIGHT_RED)
       << "coinbase transaction in the block has no inputs";
-
     return false;
   }
 
   if (!(b.baseTransaction.inputs[0].type() == typeid(BaseInput))) {
     logger(ERROR, BRIGHT_RED)
       << "coinbase transaction in the block has the wrong type";
-
     return false;
   }
 
   if (boost::get<BaseInput>(b.baseTransaction.inputs[0]).blockIndex != height) {
     logger(INFO, BRIGHT_RED) << "The miner transaction in block has invalid height: " <<
       boost::get<BaseInput>(b.baseTransaction.inputs[0]).blockIndex << ", expected: " << height;
-
     return false;
   }
 
@@ -937,12 +934,6 @@ bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) 
       << "coinbase transaction transaction have wrong unlock time="
       << b.baseTransaction.unlockTime << ", expected "
       << height + m_currency.minedMoneyUnlockWindow();
-
-    return false;
-  }
-
-  if (!check_outs_valid(b.baseTransaction)) {
-    logger(INFO, BRIGHT_RED) << "miner transaction have invalid outputs";
     return false;
   }
 
@@ -956,7 +947,7 @@ bool Blockchain::prevalidate_miner_transaction(const Block& b, uint32_t height) 
 
 bool Blockchain::validate_miner_transaction(const Block& b, uint32_t height, size_t cumulativeBlockSize,
   uint64_t alreadyGeneratedCoins, uint64_t fee, uint64_t& reward, int64_t& emissionChange) {
-  uint64_t minerReward = 0;
+   uint64_t minerReward = 0;
   for (auto& o : b.baseTransaction.outputs) {
     minerReward += o.amount;
   }
@@ -965,20 +956,19 @@ bool Blockchain::validate_miner_transaction(const Block& b, uint32_t height, siz
   get_last_n_blocks_sizes(lastBlocksSizes, m_currency.rewardBlocksWindow());
   size_t blocksSizeMedian = Common::medianValue(lastBlocksSizes);
 
+  auto blockMajorVersion = getBlockMajorVersionForHeight(height);
   if (!m_currency.getBlockReward(blockMajorVersion, blocksSizeMedian, cumulativeBlockSize, alreadyGeneratedCoins, fee, height, reward, emissionChange)) {
     logger(INFO, BRIGHT_WHITE) << "block size " << cumulativeBlockSize << " is bigger than allowed for this blockchain";
     return false;
   }
 
-  if (minerReward > reward + fee) {
+  if (minerReward > reward) {
     logger(ERROR, BRIGHT_RED) << "Coinbase transaction spend too much money: " << m_currency.formatAmount(minerReward) <<
       ", block reward is " << m_currency.formatAmount(reward);
-
     return false;
   } else if (minerReward < reward) {
     logger(ERROR, BRIGHT_RED) << "Coinbase transaction doesn't use full amount of block reward: spent " <<
-      m_currency.formatAmount(minerReward) << ", block reward is " << m_currency.formatAmount(reward) << ", fee is " << fee;
-
+      m_currency.formatAmount(minerReward) << ", block reward is " << m_currency.formatAmount(reward);
     return false;
   }
 
