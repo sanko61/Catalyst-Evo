@@ -330,7 +330,7 @@ bool Blockchain::removeObserver(IBlockchainStorageObserver* observer) {
 }
 
 bool Blockchain::checkTransactionInputs(const CryptoNote::Transaction& tx, BlockInfo& maxUsedBlock) {
-  return checkTransactionInputs(tx, maxUsedBlock.height, maxUsedBlock.id) && check_tx_outputs(tx);
+  return checkTransactionInputs(tx, maxUsedBlock.height, maxUsedBlock.id);
 }
 
 bool Blockchain::checkTransactionInputs(const CryptoNote::Transaction& tx, BlockInfo& maxUsedBlock, BlockInfo& lastFailed) {
@@ -526,7 +526,7 @@ void Blockchain::rebuildCache() {
         }
       }
 
-      interest += m_currency.calculateTotalTransactionInterest(transaction.tx, b); //block.height); //block.height shows 0 wrongly sometimes apparently
+      interest += m_currency.calculateTotalTransactionInterest(transaction.tx); //block.height); //block.height shows 0 wrongly sometimes apparently
     }
 
     pushToDepositIndex(block, interest);
@@ -1702,30 +1702,6 @@ uint64_t Blockchain::get_adjusted_time() {
   return time(NULL);
 }
 
-bool Blockchain::check_tx_outputs(const Transaction& tx) const {
-  for (TransactionOutput out : tx.outputs) {
-    if (out.target.type() == typeid(MultisignatureOutput)) {
-      if (tx.version < CURRENT_TRANSACTION_VERSION) {
-        logger(INFO, BRIGHT_WHITE) << getObjectHash(tx) << " contains multisignature output but have verion " << tx.version;
-        return false;
-      } else {
-        const auto& multisignatureOutput = ::boost::get<MultisignatureOutput>(out.target);
-        if (multisignatureOutput.term != 0) {
-          if (multisignatureOutput.term < m_currency.depositMinTerm() || multisignatureOutput.term > m_currency.depositMaxTerm()) {
-            logger(INFO, BRIGHT_WHITE) << getObjectHash(tx) << " multisignature output has invalid term: " << multisignatureOutput.term;
-            return false;
-          } else if (out.amount < m_currency.depositMinAmount()) {
-            logger(INFO, BRIGHT_WHITE) << getObjectHash(tx) << " multisignature output is a deposit output, but it has too small amount: " << out.amount;
-            return false;
-          }
-        }
-      }
-    }
-  }
-
-  return true;
-}
-
 bool Blockchain::check_block_timestamp_main(const Block& b) {
   uint64_t ftl = m_currency.blockFutureTimeLimit();
   if (getForkVersion() == 1)
@@ -2008,7 +1984,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
     block.transactions.back().tx = transactions[i];
     size_t blob_size = toBinaryArray(transactions[i]).size();
 
-    uint64_t in_amount = m_currency.getTransactionAllInputsAmount(transactions[i], block.height);
+    uint64_t in_amount = m_currency.getTransactionAllInputsAmount(transactions[i]);
 	  uint64_t out_amount = getOutputAmount(transactions[i]);
     uint64_t fee = in_amount < out_amount ? CryptoNote::parameters::MINIMUM_FEE : in_amount - out_amount;
 
@@ -2021,11 +1997,6 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
     if (!checkTransactionInputs(transactions[i])) {
       isTransactionValid = false;
       logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has at least one transaction with wrong inputs: " << tx_id;
-    }
-
-    if (!check_tx_outputs(transactions[i])) {
-      isTransactionValid = false;
-      logger(INFO, BRIGHT_WHITE) << "Transaction " << tx_id << " has at least one invalid output";
     }
 
     if (!isTransactionValid) {
@@ -2042,7 +2013,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
 
     cumulative_block_size += blob_size;
     fee_summary += fee;
-    interestSummary += m_currency.calculateTotalTransactionInterest(transactions[i], block.height);
+    interestSummary += m_currency.calculateTotalTransactionInterest(transactions[i]);
   }
 
   if (!checkCumulativeBlockSize(blockHash, cumulative_block_size, block.height)) {

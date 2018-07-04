@@ -13,23 +13,23 @@ namespace CryptoNote {
 
 DepositIndex::DepositIndex() : blockCount(0) {
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 DepositIndex::DepositIndex(DepositHeight expectedHeight) : blockCount(0) {
   index.reserve(expectedHeight + 1);
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 void DepositIndex::reserve(DepositHeight expectedHeight) {
   index.reserve(expectedHeight + 1);
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 auto DepositIndex::fullDepositAmount() const -> DepositAmount {
   return index.empty() ? 0 : index.back().amount;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 auto DepositIndex::fullInterestAmount() const -> DepositInterest {
   return index.empty() ? 0 : index.back().interest;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 static inline bool sumWillOverflow(int64_t x, int64_t y) {
   if (y > 0 && x > std::numeric_limits<int64_t>::max() - y) {
     return true;
@@ -41,7 +41,7 @@ static inline bool sumWillOverflow(int64_t x, int64_t y) {
   
   return false;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 static inline bool sumWillOverflow(uint64_t x, uint64_t y) {
   if (x > std::numeric_limits<uint64_t>::max() - y) {
     return true;
@@ -49,7 +49,7 @@ static inline bool sumWillOverflow(uint64_t x, uint64_t y) {
  
   return false;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 void DepositIndex::pushBlock(DepositAmount amount, DepositInterest interest) {
   DepositAmount lastAmount;
   DepositInterest lastInterest;
@@ -70,7 +70,7 @@ void DepositIndex::pushBlock(DepositAmount amount, DepositInterest interest) {
 
   ++blockCount;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 void DepositIndex::popBlock() {
   assert(blockCount > 0);
   --blockCount;
@@ -78,17 +78,17 @@ void DepositIndex::popBlock() {
     index.pop_back();
   }
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//  
+  
 auto DepositIndex::size() const -> DepositHeight {
   return blockCount;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 auto DepositIndex::upperBound(DepositHeight height) const -> IndexType::const_iterator {
   return std::upper_bound(
       index.cbegin(), index.cend(), height,
       [] (DepositHeight height, const DepositIndexEntry& left) { return height < left.height; });
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 size_t DepositIndex::popBlocks(DepositHeight from) {
   if (from >= blockCount) {
     return 0;
@@ -108,7 +108,7 @@ size_t DepositIndex::popBlocks(DepositHeight from) {
   blockCount -= diff;
   return diff;
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 auto DepositIndex::depositAmountAtHeight(DepositHeight height) const -> DepositAmount {
   if (blockCount == 0) {
     return 0;
@@ -117,7 +117,7 @@ auto DepositIndex::depositAmountAtHeight(DepositHeight height) const -> DepositA
     return it == index.cbegin() ? 0 : (--it)->amount;
   }
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 auto DepositIndex::depositInterestAtHeight(DepositHeight height) const -> DepositInterest {
   if (blockCount == 0) {
     return 0;
@@ -126,7 +126,7 @@ auto DepositIndex::depositInterestAtHeight(DepositHeight height) const -> Deposi
     return it == index.cbegin() ? 0 : (--it)->interest;
   }
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 void DepositIndex::serialize(ISerializer& s) {
   s(blockCount, "blockCount");
   if (s.type() == ISerializer::INPUT) {
@@ -135,11 +135,11 @@ void DepositIndex::serialize(ISerializer& s) {
     writeSequence<DepositIndexEntry>(index.begin(), index.end(), "index", s);
   }
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 void DepositIndex::DepositIndexEntry::serialize(ISerializer& s) {
   s(height, "height");
   s(amount, "amount");
-  s(interest, "minting");
+  s(interest, "interest");
 }
-//------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
+
 }
