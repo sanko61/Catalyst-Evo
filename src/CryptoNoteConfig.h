@@ -51,16 +51,13 @@ const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1;  // block
 const size_t   DIFFICULTY_CUT                                = 30;  // timestamps to cut after sorting
 
 const uint64_t DEPOSIT_MIN_AMOUNT                            = 1 * COIN;
-const uint32_t DEPOSIT_MIN_TERM                              = 20000; // ~1 month [this block of 1 mo]
-const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 20000; // ~1 year
+const uint32_t DEPOSIT_MIN_TERM                              = 22000; // ~1 month [this block of 1 mo]
+const uint32_t DEPOSIT_MAX_TERM                              = 1 * 12 * 22000; // ~1 year
 const uint64_t DEPOSIT_MIN_TOTAL_RATE_FACTOR                 = 0; // rate is constant
-const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 30; // Apr % per year
+const uint64_t DEPOSIT_MAX_TOTAL_RATE                        = 31; // Apr % per year
 static_assert(DEPOSIT_MIN_TERM > 0, "Bad DEPOSIT_MIN_TERM");
 static_assert(DEPOSIT_MIN_TERM <= DEPOSIT_MAX_TERM, "Bad DEPOSIT_MAX_TERM");
 static_assert(DEPOSIT_MIN_TERM * DEPOSIT_MAX_TOTAL_RATE > DEPOSIT_MIN_TOTAL_RATE_FACTOR, "Bad DEPOSIT_MIN_TOTAL_RATE_FACTOR or DEPOSIT_MAX_TOTAL_RATE");
-
-const uint64_t MULTIPLIER_FACTOR                             = 250000; // early depositor multiplier
-const uint32_t END_MULTIPLIER_BLOCK                          = 3600; // block at which the multiplier ceases to be applied
 
 const size_t   MAX_BLOCK_SIZE_INITIAL                        = 1000000;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR         = 100 * 1024;
@@ -159,6 +156,7 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {6149,	"ba6e50247e73f02ea9961aa2b91ecaab63c50d0fd8f2c5e2c007fb978ee2a649" },
   {6431,	"57bd7d6c9921d934086c098f74c4ea410471e9b4729fe2e3d408a16a55f0ea2b" },
   {6567,	"4c5fc21d61afd9ebdfa331e5367be36ff61ddb95ccd7746160856655e0c86533" },
+  {7045,	"9415d1b923b4c0ea8a987891f69e596460d1af42b97e1e1acb3860b627f8cfec" },
 };
 
 const std::map<const uint32_t, const uint8_t> Version = {

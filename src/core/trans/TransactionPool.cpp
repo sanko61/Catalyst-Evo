@@ -108,7 +108,7 @@ namespace CryptoNote {
       return false;
     }
 
-    uint64_t inputs_amount = m_currency.getTransactionAllInputsAmount(tx, height);
+    uint64_t inputs_amount = m_currency.getTransactionAllInputsAmount(tx);
     uint64_t outputs_amount = get_outs_money_amount(tx);
 
     if (outputs_amount > inputs_amount) {

@@ -161,7 +161,7 @@ bool Currency::getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size
    return true;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-uint64_t Currency::calculateInterest(uint64_t amount, uint32_t term, uint32_t height) const {
+uint64_t Currency::calculateInterest(uint64_t amount, uint32_t term) const {
   assert(m_depositMinTerm <= term && term <= m_depositMaxTerm);
   assert(static_cast<uint64_t>(term)* m_depositMaxTotalRate > m_depositMinTotalRateFactor);
 
@@ -169,33 +169,22 @@ uint64_t Currency::calculateInterest(uint64_t amount, uint32_t term, uint32_t he
   uint64_t bHi;
   uint64_t bLo = mul128(amount, a, &bHi);
 
-  uint64_t cHi;
-  uint64_t cLo;
-  assert(std::numeric_limits<uint32_t>::max() / 100 > m_depositMaxTerm);
-  div128_32(bHi, bLo, static_cast<uint32_t>(100 * m_depositMaxTerm), &cHi, &cLo);
-  assert(cHi == 0);
-
-  // early depositor multiplier
   uint64_t interestHi;
   uint64_t interestLo;
-  if (height <= CryptoNote::parameters::END_MULTIPLIER_BLOCK){
-      interestLo = mul128(cLo, CryptoNote::parameters::MULTIPLIER_FACTOR, &interestHi);
-      assert(interestHi == 0);
-  } else {
-      interestHi = cHi;
-      interestLo = cLo;
-  }
+  assert(std::numeric_limits<uint32_t>::max() / 100 > m_depositMaxTerm);
+  div128_32(bHi, bLo, static_cast<uint32_t>(100 * m_depositMaxTerm), &interestHi, &interestLo);
+  assert(interestHi == 0);
 
   return interestLo;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-uint64_t Currency::calculateTotalTransactionInterest(const Transaction& tx, uint32_t height) const {
+uint64_t Currency::calculateTotalTransactionInterest(const Transaction& tx) const {
   uint64_t interest = 0;
   for (const TransactionInput& input : tx.inputs) {
     if (input.type() == typeid(MultisignatureInput)) {
       const MultisignatureInput& multisignatureInput = boost::get<MultisignatureInput>(input);
       if (multisignatureInput.term != 0) {
-        interest += calculateInterest(multisignatureInput.amount, multisignatureInput.term, height);
+        interest += calculateInterest(multisignatureInput.amount, multisignatureInput.term);
       }
     }
   }
@@ -203,7 +192,7 @@ uint64_t Currency::calculateTotalTransactionInterest(const Transaction& tx, uint
   return interest;
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-uint64_t Currency::getTransactionInputAmount(const TransactionInput& in, uint32_t height) const {
+uint64_t Currency::getTransactionInputAmount(const TransactionInput& in) const {
   if (in.type() == typeid(KeyInput)) {
     return boost::get<KeyInput>(in).amount;
   } else if (in.type() == typeid(MultisignatureInput)) {
@@ -211,7 +200,7 @@ uint64_t Currency::getTransactionInputAmount(const TransactionInput& in, uint32_
     if (multisignatureInput.term == 0) {
       return multisignatureInput.amount;
     } else {
-      return multisignatureInput.amount + calculateInterest(multisignatureInput.amount, multisignatureInput.term, height);
+      return multisignatureInput.amount + calculateInterest(multisignatureInput.amount, multisignatureInput.term);
     }
   } else if (in.type() == typeid(BaseInput)) {
     return 0;
@@ -221,10 +210,10 @@ uint64_t Currency::getTransactionInputAmount(const TransactionInput& in, uint32_
   }
 }
 //------------------------------------------------------------- Seperator Code -------------------------------------------------------------//
-uint64_t Currency::getTransactionAllInputsAmount(const Transaction& tx, uint32_t height) const {
+uint64_t Currency::getTransactionAllInputsAmount(const Transaction& tx) const {
   uint64_t amount = 0;
   for (const auto& in : tx.inputs) {
-    amount += getTransactionInputAmount(in, height);
+    amount += getTransactionInputAmount(in);
   }
 
   return amount;
@@ -238,7 +227,7 @@ bool Currency::getTransactionFee(const Transaction& tx, uint64_t& fee, uint32_t 
   //	  return false;
 
   for (const auto& in : tx.inputs) {
-    amount_in += getTransactionInputAmount(in, height);
+    amount_in += getTransactionInputAmount(in);
   }
 
   for (const auto& o : tx.outputs) {
