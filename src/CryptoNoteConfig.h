@@ -130,12 +130,13 @@ const uint32_t P2P_DEFAULT_CONNECTION_TIMEOUT                = 5000; // 5 second
 const uint32_t P2P_DEFAULT_PING_CONNECTION_TIMEOUT           = 2000; // 2 seconds
 const uint64_t P2P_DEFAULT_INVOKE_TIMEOUT                    = 60 * 2 * 1000; // 2 minutes
 const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 seconds
-const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "FF9507CA55455F37A3B783EE2C5123B8B6A34A0C5CAAE050922C6254161480C1";
+//const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "FF9507CA55455F37A3B783EE2C5123B8B6A34A0C5CAAE050922C6254161480C1";
+const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "0000000000000000000000000000000000000000000000000000000000000000";
 
 const std::initializer_list<const char*> SEED_NODES = {
 //  "seed1.catalyst.cash:5290",
 //  "seed2.catalyst.cash:5290",
-//"kribbzseed1.com:23925",
+//"kribbzseed1.com:23925",F
 //"kribbzseed2.com:23925",
 
   "54.70.55.32:23925",
