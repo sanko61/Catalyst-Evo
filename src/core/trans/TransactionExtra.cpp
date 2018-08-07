@@ -91,7 +91,7 @@ bool parseTransactionExtra(const std::vector<uint8_t> &transactionExtra, std::ve
         TransactionExtraKribbz extraKribbz;
         uint8_t size = read<uint8_t>(iss);
         if (size > 0) {
-          extraKribbz.nonce.resize(size);
+          extraKribbz.s_kribbz.resize(size);
           read(iss, extraKribbz.s_kribbz.data(), extraKribbz.s_kribbz.size());
         }
         transactionExtraFields.push_back(extraKribbz);
