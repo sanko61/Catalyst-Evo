@@ -196,7 +196,7 @@ bool addExtraNonceToTransactionExtra(std::vector<uint8_t>& tx_extra, const Binar
 }
 
 bool addExtraKribbzToTransactionExtra(std::vector<uint8_t>& tx_extra, const BinaryArray& extra_kribbz) {
-  if (extra_nonce.size() > TX_EXTRA_KRIBZZ_MAX_COUNT) {
+  if (extra_kribbz.size() > TX_EXTRA_KRIBZZ_MAX_COUNT) {
     return false;
   }
 
