@@ -96,8 +96,7 @@ bool parseTransactionExtra(const std::vector<uint8_t> &transactionExtra, std::ve
         }
         transactionExtraFields.push_back(extraKribbz);
         break;
-
-	  
+	  }
 	  }
     }
   } catch (std::exception &) {
