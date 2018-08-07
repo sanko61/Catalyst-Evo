@@ -86,7 +86,19 @@ bool parseTransactionExtra(const std::vector<uint8_t> &transactionExtra, std::ve
         transactionExtraFields.push_back(ttl);
         break;
       }
-      }
+
+      case TX_EXTRA_KRIBBZ: {
+        TransactionExtraKribbz extraKribbz;
+        uint8_t size = read<uint8_t>(iss);
+        if (size > 0) {
+          extraKribbz.nonce.resize(size);
+          read(iss, extraKribbz.s_kribbz.data(), extraKribbz.s_kribbz.size());
+        }
+        transactionExtraFields.push_back(extraKribbz);
+        break;
+
+	  
+	  }
     }
   } catch (std::exception &) {
     return false;
@@ -115,6 +127,10 @@ struct ExtraSerializerVisitor : public boost::static_visitor<bool> {
 
   bool operator()(const TransactionExtraNonce& t) {
     return addExtraNonceToTransactionExtra(extra, t.nonce);
+  }
+
+  bool operator()(const TransactionExtraKribbz& t) {
+    return addExtraKribbzToTransactionExtra(extra, t.s_kribbz);
   }
 
   bool operator()(const TransactionExtraMergeMiningTag& t) {
@@ -179,6 +195,25 @@ bool addExtraNonceToTransactionExtra(std::vector<uint8_t>& tx_extra, const Binar
   memcpy(&tx_extra[start_pos], extra_nonce.data(), extra_nonce.size());
   return true;
 }
+
+bool addExtraKribbzToTransactionExtra(std::vector<uint8_t>& tx_extra, const BinaryArray& extra_kribbz) {
+  if (extra_nonce.size() > TX_EXTRA_KRIBZZ_MAX_COUNT) {
+    return false;
+  }
+
+  size_t start_pos = tx_extra.size();
+  tx_extra.resize(tx_extra.size() + 2 + extra_kribbz.size());
+  //write tag
+  tx_extra[start_pos] = TX_EXTRA_KRIBBZ;
+  //write len
+  ++start_pos;
+  tx_extra[start_pos] = static_cast<uint8_t>(extra_kribbz.size());
+  //write data
+  ++start_pos;
+  memcpy(&tx_extra[start_pos], extra_kribbz.data(), extra_kribbz.size());
+  return true;
+}
+
 
 bool appendMergeMiningTagToExtra(std::vector<uint8_t>& tx_extra, const TransactionExtraMergeMiningTag& mm_tag) {
   BinaryArray blob;

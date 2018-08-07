@@ -8,6 +8,7 @@
 
 #define TX_EXTRA_PADDING_MAX_COUNT          255
 #define TX_EXTRA_NONCE_MAX_COUNT            255
+#define TX_EXTRA_KRIBZZ_MAX_COUNT           1024
 
 #define TX_EXTRA_TAG_PADDING                0x00
 #define TX_EXTRA_TAG_PUBKEY                 0x01
@@ -15,6 +16,7 @@
 #define TX_EXTRA_MERGE_MINING_TAG           0x03
 #define TX_EXTRA_MESSAGE_TAG                0x04
 #define TX_EXTRA_TTL                        0x05
+#define TX_EXTRA_KRIBBZ                     0x06
 
 #define TX_EXTRA_NONCE_PAYMENT_ID           0x00
 
@@ -52,11 +54,16 @@ struct TransactionExtraTTL {
   uint64_t ttl;
 };
 
+struct TransactionExtraKribbz {
+  std::vector<uint8_t> s_kribbz;
+};
+
+
 // tx_extra_field format, except tx_extra_padding and tx_extra_pub_key:
 //   varint tag;
 //   varint size;
 //   varint data[];
-typedef boost::variant<TransactionExtraPadding, TransactionExtraPublicKey, TransactionExtraNonce, TransactionExtraMergeMiningTag, tx_extra_message, TransactionExtraTTL> TransactionExtraField;
+typedef boost::variant<TransactionExtraPadding, TransactionExtraPublicKey, TransactionExtraNonce, TransactionExtraMergeMiningTag, tx_extra_message, TransactionExtraTTL, TransactionExtraKribbz> TransactionExtraField;
 
 
 
