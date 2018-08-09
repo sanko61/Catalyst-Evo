@@ -197,7 +197,7 @@ struct TransferCommand {
         if (arg.size() && arg[0] == '-') {
 
           const auto& value = ar.next();
-          logger(WARNING, BRIGHT_RED) << "assem 1: " << arg << "="<< value;
+          logger(DEBUGGING, BRIGHT_RED) << "assem 1: " << arg << "="<< value;
 
           if (arg == "-p") {
             if (!createTxExtraWithPaymentId(value, extra)) {
