@@ -198,6 +198,8 @@ struct TransferCommand {
 
           const auto& value = ar.next();
           logger(DEBUGGING, BRIGHT_RED) << "assem 1: " << arg << "="<< value;
+          logger(INFO) << " extra1=" << Common::podToHex( extra);
+
           char buff[] = "test kribbz";
           std::vector<uint8_t> kribbz_value(100);
           memcpy((void*) &kribbz_value[0], buff, sizeof(buff));
@@ -206,6 +208,7 @@ struct TransferCommand {
               logger(ERROR, BRIGHT_RED) << "kribbz invalid format: \"" << value << "\", expected uint8 vector";
               return false;
           }
+          logger(INFO) << " extra2=" << Common::podToHex( extra);
 
           if (arg == "-p") {
             if (!createTxExtraWithPaymentId(value, extra)) {
