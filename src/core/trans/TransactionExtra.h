@@ -99,5 +99,6 @@ bool getPaymentIdFromTxExtra(const std::vector<uint8_t>& extra, Crypto::Hash& pa
 bool parsePaymentId(const std::string& paymentIdString, Crypto::Hash& paymentId);
 
 bool addExtraKribbzToTransactionExtra(std::vector<uint8_t>& tx_extra, const BinaryArray& extra_kribbz);
+bool createTxExtraKribbz(const std::vector<uint8_t>& kribbz_value, std::vector<uint8_t>& extra);
 
 }

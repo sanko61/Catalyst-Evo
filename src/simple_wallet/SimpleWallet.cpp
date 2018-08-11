@@ -198,6 +198,14 @@ struct TransferCommand {
 
           const auto& value = ar.next();
           logger(DEBUGGING, BRIGHT_RED) << "assem 1: " << arg << "="<< value;
+          char buff[] = "test kribbz";
+          
+          std::vector<uint8_t> kribbz_value(100);
+          memcpy((void*) &kribbz_value, buff, sizeof(buff));
+          if (!createTxExtraKribbz(kribbz_value, extra)) {
+              logger(ERROR, BRIGHT_RED) << "kribbz invalid format: \"" << value << "\", expected uint8 vector";
+              return false;
+          }
 
           if (arg == "-p") {
             if (!createTxExtraWithPaymentId(value, extra)) {

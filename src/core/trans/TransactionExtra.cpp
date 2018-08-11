@@ -312,6 +312,16 @@ bool createTxExtraWithPaymentId(const std::string& paymentIdString, std::vector<
   return true;
 }
 
+
+bool createTxExtraKribbz(const std::vector<uint8_t>& kribbz_value, std::vector<uint8_t>& extra) {
+  if (!CryptoNote::addExtraKribbzToTransactionExtra(extra, kribbz_value)) {
+    return false;
+  }
+  return true;
+}
+
+
+
 bool getPaymentIdFromTxExtra(const std::vector<uint8_t>& extra, Hash& paymentId) {
   std::vector<TransactionExtraField> tx_extra_fields;
   if (!parseTransactionExtra(extra, tx_extra_fields)) {
