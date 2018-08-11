@@ -1626,7 +1626,6 @@ bool simple_wallet::show_incoming_transfers(const std::vector<std::string>& args
     logger(INFO) << "        amount       \t                              tx id";
     logger(INFO, GREEN) <<  // spent - magenta
       std::setw(21) << m_currency.formatAmount(txInfo.totalAmount) << '\t' << Common::podToHex(txInfo.hash);
-    logger(INFO) << " extra " << txInfo.extra;
   }
 
   if (!hasTransfers) success_msg_writer() << "No incoming transfers";
@@ -1649,6 +1648,8 @@ bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args
 	m_wallet->getTransfer(id, tr);
 	logger(INFO, MAGENTA) << std::setw(TOTAL_AMOUNT_MAX_WIDTH) << m_currency.formatAmount(-tr.amount) << '\t' << tr.address;
     }
+    logger(INFO) << " extra=" << Common::podToHex( txInfo.extra);
+
   }
 
   if (!hasTransfers) success_msg_writer() << "No outgoing transfers";
