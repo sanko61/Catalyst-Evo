@@ -201,7 +201,7 @@ struct TransferCommand {
           char buff[] = "test kribbz";
           std::vector<uint8_t> kribbz_value(100);
           memcpy((void*) &kribbz_value, buff, sizeof(buff));
-          logger(DEBUGGING, BRIGHT_RED) << "assem 2 size: " << kribbz_value.size()
+          logger(DEBUGGING, BRIGHT_RED) << "assem 2 size: " << kribbz_value.size();
           if (!createTxExtraKribbz(kribbz_value, extra)) {
               logger(ERROR, BRIGHT_RED) << "kribbz invalid format: \"" << value << "\", expected uint8 vector";
               return false;
