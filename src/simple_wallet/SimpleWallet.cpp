@@ -200,7 +200,7 @@ struct TransferCommand {
           logger(DEBUGGING, BRIGHT_RED) << "assem 1: " << arg << "="<< value;
           char buff[] = "test kribbz";
           std::vector<uint8_t> kribbz_value(100);
-          memcpy((void*) &kribbz_value, buff, sizeof(buff));
+          memcpy((void*) &kribbz_value[0], buff, sizeof(buff));
           logger(DEBUGGING, BRIGHT_RED) << "assem 2 size: " << kribbz_value.size();
           if (!createTxExtraKribbz(kribbz_value, extra)) {
               logger(ERROR, BRIGHT_RED) << "kribbz invalid format: \"" << value << "\", expected uint8 vector";
