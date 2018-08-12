@@ -1661,7 +1661,7 @@ bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args
     TransactionExtraKribbz kr;
     getKribbzFromTxExtra(extraVec, kr); 
     char buf[1000];
-    memcpy(&kr.s_kribbz[0], buf, kr.s_kribbz.size());
+    memcpy(buf, &kr.s_kribbz[0], kr.s_kribbz.size());
     
     logger(INFO) << " extraKribbz=" << buf;
     logger(INFO) << " extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
