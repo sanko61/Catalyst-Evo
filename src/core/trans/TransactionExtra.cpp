@@ -340,6 +340,13 @@ bool getPaymentIdFromTxExtra(const std::vector<uint8_t>& extra, Hash& paymentId)
   return true;
 }
 
+bool getKribbzFromTxExtra(const std::vector<uint8_t>& tx_extra, TransactionExtraKribbz& mm_tag) {
+  std::vector<TransactionExtraField> tx_extra_fields;
+  parseTransactionExtra(tx_extra, tx_extra_fields);
+
+  return findTransactionExtraFieldByType(tx_extra_fields, mm_tag);
+}
+
 #define TX_EXTRA_MESSAGE_CHECKSUM_SIZE 4
 
 #pragma pack(push, 1)

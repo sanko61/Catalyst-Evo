@@ -1654,6 +1654,14 @@ bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args
     }
     logger(INFO) << " extra=" << Common::podToHex( txInfo.extra);
 
+    std::vector<uint8_t> extraVec;
+    extraVec.reserve(txInfo.extra.size());
+    std::for_each(txInfo.extra.begin(), txInfo.extra.end(), [&extraVec](const char el) { extraVec.push_back(el); });
+
+    TransactionExtraKribbz kr;
+    getKribbzFromTxExtra(extraVec, kr); 
+    logger(INFO) << " extraKribbz=" << Common::podToHex( kr);
+
   }
 
   if (!hasTransfers) success_msg_writer() << "No outgoing transfers";
