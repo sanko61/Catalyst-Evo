@@ -146,6 +146,7 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
       messages.emplace_back(CryptoNote::TransactionMessage{ it->message, it->address });
     }
   }
+  logger(INFO) << "ASSEM3: kribbz_infoe=" << req.kribbz_info;
 
   std::vector<uint8_t> extra;
   if (!req.payment_id.empty()) {
