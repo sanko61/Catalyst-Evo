@@ -92,7 +92,7 @@ void wallet_rpc_server::processRequest(const CryptoNote::HttpRequest& request, C
   try {
     jsonRequest.parseRequest(request.getBody());
     jsonResponse.setId(jsonRequest.getId());
-
+    logger(INFO) << "ASSEM5: json=" << request.getBody();
     static std::unordered_map<std::string, JsonMemberMethod> s_methods = {
       { "getbalance", makeMemberMethod(&wallet_rpc_server::on_getbalance) },
       { "transfer", makeMemberMethod(&wallet_rpc_server::on_transfer) },
@@ -147,6 +147,7 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
     }
   }
   logger(INFO) << "ASSEM3: kribbz_infoe=" << req.kribbz_info;
+  logger(INFO) << "ASSEM4: req.payment_id=" << req.payment_id;
 
   std::vector<uint8_t> extra;
   if (!req.payment_id.empty()) {
@@ -166,6 +167,19 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
     }
   }
 
+  
+    const char *buff = req.kribbz_info.c_str();
+    int len = req.kribbz_info.length();
+    std::vector<uint8_t> kribbz_value(len + 1);
+    memcpy((void*) &kribbz_value[0], buff, len);
+    logger(INFO) << " kribbz_value=" << Common::podToHex(kribbz_value);
+    logger(DEBUGGING, BRIGHT_RED) << "assem 2 size: " << kribbz_value.size();
+    if (!createTxExtraKribbz(kribbz_value, extra)) {
+        logger(ERROR, BRIGHT_RED) << "kribbz invalid format";
+        throw std::runtime_error("Kribbz invalid format");
+    }
+    logger(INFO) << " extra2=" << Common::podToHex( extra);
+  
   std::string extraString;
   std::copy(extra.begin(), extra.end(), std::back_inserter(extraString));
   try {
