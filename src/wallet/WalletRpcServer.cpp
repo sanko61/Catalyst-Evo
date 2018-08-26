@@ -169,7 +169,7 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
 
   
     const char *buff = req.kribbz_info.c_str();
-    int len = req.kribbz_info.length();
+    int len = req.kribbz_info.size();
     std::vector<uint8_t> kribbz_value(len + 1);
     memcpy((void*) &kribbz_value[0], buff, len);
     logger(INFO) << " kribbz_value=" << Common::podToHex(kribbz_value);
