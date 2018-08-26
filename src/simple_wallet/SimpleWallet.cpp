@@ -1663,6 +1663,7 @@ bool simple_wallet::show_outgoing_transfers(const std::vector<std::string>& args
     char buf[4096];
     memcpy(buf, &kr.s_kribbz[0], kr.s_kribbz.size());
     
+    logger(INFO) << " s_kribbz=" << kr.s_kribbz.size();
     logger(INFO) << " extraKribbz=" << buf;
     logger(INFO) << kr.s_kribbz.size() << " extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
 
