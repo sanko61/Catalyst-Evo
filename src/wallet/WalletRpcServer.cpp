@@ -177,13 +177,13 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
 //    logger(INFO) << " kribbz_value=" << Common::podToHex(kribbz_value);
 //    logger(DEBUGGING, BRIGHT_RED) << "assem 2 size: " << kribbz_value.size();
 
-    std::vector<uint8_t> kribbz_value (req.kribbz_info.length());
-    req.kribbz_info.copy( (char*) &kribbz_value[0], kribbz_value.size());
-    
-    if (!createTxExtraKribbz(kribbz_value, extra)) {
-        logger(ERROR, BRIGHT_RED) << "kribbz invalid format";
-        throw std::runtime_error("Kribbz invalid format");
-    }
+//    std::vector<uint8_t> kribbz_value (req.kribbz_info.length());
+//    req.kribbz_info.copy( (char*) &kribbz_value[0], kribbz_value.size());
+//    
+//    if (!createTxExtraKribbz(kribbz_value, extra)) {
+//        logger(ERROR, BRIGHT_RED) << "kribbz invalid format";
+//        throw std::runtime_error("Kribbz invalid format");
+//    }
     logger(INFO) << " extra2=" << Common::podToHex( extra);
   
   std::string extraString;
