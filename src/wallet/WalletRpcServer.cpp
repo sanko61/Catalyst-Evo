@@ -92,7 +92,7 @@ void wallet_rpc_server::processRequest(const CryptoNote::HttpRequest& request, C
   try {
     jsonRequest.parseRequest(request.getBody());
     jsonResponse.setId(jsonRequest.getId());
-    logger(INFO) << "ASSEM5: json=" << request.getBody();
+    //logger(INFO) << "ASSEM5: json=" << request.getBody();
     static std::unordered_map<std::string, JsonMemberMethod> s_methods = {
       { "getbalance", makeMemberMethod(&wallet_rpc_server::on_getbalance) },
       { "transfer", makeMemberMethod(&wallet_rpc_server::on_transfer) },
@@ -146,8 +146,8 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
       messages.emplace_back(CryptoNote::TransactionMessage{ it->message, it->address });
     }
   }
-  logger(INFO) << "ASSEM3: kribbz_infoe=" << req.kribbz_info;
-  logger(INFO) << "ASSEM4: req.payment_id=" << req.payment_id;
+//  logger(INFO) << "ASSEM3: kribbz_infoe=" << req.kribbz_info;
+//  logger(INFO) << "ASSEM4: req.payment_id=" << req.payment_id;
 
   std::vector<uint8_t> extra;
   if (!req.payment_id.empty()) {
@@ -184,7 +184,7 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
 //        logger(ERROR, BRIGHT_RED) << "kribbz invalid format";
 //        throw std::runtime_error("Kribbz invalid format");
 //    }
-    logger(INFO) << " extra2=" << Common::podToHex( extra);
+//    logger(INFO) << " extra2=" << Common::podToHex( extra);
   
   std::string extraString;
   std::copy(extra.begin(), extra.end(), std::back_inserter(extraString));
