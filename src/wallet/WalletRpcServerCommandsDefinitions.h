@@ -68,14 +68,15 @@ using CryptoNote::ISerializer;
       uint64_t unlock_time;
       std::string payment_id;
       //std::string kribbz_info;
-
+      std::vector<uint8_t>  kribbz_info;
+      
       void serialize(ISerializer& s) {
         KV_MEMBER(destinations)
         KV_MEMBER(fee)
         KV_MEMBER(mixin)
         KV_MEMBER(unlock_time)
         KV_MEMBER(payment_id)
-        //KV_MEMBER(kribbz_info)
+        KV_MEMBER(kribbz_info)
       }
     };
 
