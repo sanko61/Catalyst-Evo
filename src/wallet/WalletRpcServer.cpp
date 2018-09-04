@@ -146,8 +146,8 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
       messages.emplace_back(CryptoNote::TransactionMessage{ it->message, it->address });
     }
   }
-//  logger(INFO) << "ASSEM3: kribbz_infoe=" << req.kribbz_info;
-//  logger(INFO) << "ASSEM4: req.payment_id=" << req.payment_id;
+  logger(INFO) << "ASSEM3: kribbz_infoe=" << req.kribbz_info;
+  logger(INFO) << "ASSEM4: req.payment_id=" << req.payment_id;
 
   std::vector<uint8_t> extra;
   if (!req.payment_id.empty()) {
@@ -215,6 +215,17 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
     CryptoNote::WalletLegacyTransaction txInfo;
     m_wallet.getTransaction(tx, txInfo);
     res.tx_hash = Common::podToHex(txInfo.hash);
+    
+    TransactionExtraKribbz kr;
+    getKribbzFromTxExtra(extra, kr); 
+    char buf[4096];
+    memcpy(buf, &kr.s_kribbz[0], kr.s_kribbz.size());
+    
+    logger(INFO) << "Check s_kribbz=" << kr.s_kribbz.size();
+    logger(INFO) << "Check  extraKribbz=" << buf;
+    logger(INFO) << kr.s_kribbz.size() << "Check  extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
+    
+    
 
   } catch (const std::exception& e) {
     throw JsonRpc::JsonRpcError(WALLET_RPC_ERROR_CODE_GENERIC_TRANSFER_ERROR, e.what());
