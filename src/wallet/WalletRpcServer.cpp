@@ -166,8 +166,21 @@ bool wallet_rpc_server::on_transfer(const wallet_rpc::COMMAND_RPC_TRANSFER::requ
         "Something went wrong with payment_id. Please check its format: \"" + payment_id_str + "\", expected 64-character string");
     }
   }
-  
-//    const char *buff = req.kribbz_info.c_str();
+
+  if (!req.kribbz_info.empty()) {
+    std::string kribbz_str = req.kribbz_info;
+    int len = req.kribbz_info.size();
+//    char buff[] = "test kribbz wal";
+    std::vector<uint8_t> kribbz_value(len);
+    memcpy((void*) &kribbz_value[0], kribbz_str.data(), len);
+    logger(INFO) << " kribbz_value=" << Common::podToHex(kribbz_value);
+    logger(DEBUGGING, BRIGHT_RED) << "assem 2 size: " << kribbz_value.size();
+    if (!createTxExtraKribbz(kribbz_value, extra)) {
+        logger(ERROR, BRIGHT_RED) << "kribbz invalid format: expected uint8 vector";
+        return false;
+    }
+  }  
+    //    const char *buff = req.kribbz_info.c_str();
 
 /*    int len = req.kribbz_info.size();
     std::vector<uint8_t> kribbz_value(len);

@@ -196,10 +196,9 @@ bool addExtraNonceToTransactionExtra(std::vector<uint8_t>& tx_extra, const Binar
 }
 
 bool addExtraKribbzToTransactionExtra(std::vector<uint8_t>& tx_extra, const BinaryArray& extra_kribbz) {
-  if (extra_kribbz.size() > TX_EXTRA_KRIBZZ_MAX_COUNT) {
+  if (extra_kribbz.size() + 2 > TX_EXTRA_KRIBZZ_MAX_COUNT) {
     return false;
   }
-
   size_t start_pos = tx_extra.size();
   tx_extra.resize(tx_extra.size() + 2 + extra_kribbz.size());
   //write tag
@@ -282,6 +281,7 @@ void setPaymentIdToTransactionExtraNonce(std::vector<uint8_t>& extra_nonce, cons
   std::copy(payment_id_ptr, payment_id_ptr + sizeof(payment_id), std::back_inserter(extra_nonce));
 }
 
+
 bool getPaymentIdFromTransactionExtraNonce(const std::vector<uint8_t>& extra_nonce, Hash& payment_id) {
   if (sizeof(Hash) + 1 != extra_nonce.size())
     return false;
@@ -290,6 +290,14 @@ bool getPaymentIdFromTransactionExtraNonce(const std::vector<uint8_t>& extra_non
   payment_id = *reinterpret_cast<const Hash*>(extra_nonce.data() + 1);
   return true;
 }
+
+bool getKribbzFromTransactionExtraNonce(const std::vector<uint8_t>& extra_kr, Hash& kribbz_info) {
+  if (sizeof(Hash) != extra_kr.size())
+    return false;
+  kribbz_info = *reinterpret_cast<const Hash*>(extra_kr.data());
+  return true;
+}
+
 
 bool parsePaymentId(const std::string& paymentIdString, Hash& paymentId) {
   return Common::podFromHex(paymentIdString, paymentId);
