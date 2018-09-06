@@ -89,7 +89,7 @@ bool parseTransactionExtra(const std::vector<uint8_t> &transactionExtra, std::ve
 
       case TX_EXTRA_KRIBBZ: {
         TransactionExtraKribbz extraKribbz;
-//        uint8_t size = read<uint8_t>(iss);
+//        uint8_t size1 = read<uint8_t>(iss);
         uint16_t size = read<uint16_t>(iss);
         if (size > 0) {
           extraKribbz.s_kribbz.resize(size);
@@ -197,11 +197,11 @@ bool addExtraNonceToTransactionExtra(std::vector<uint8_t>& tx_extra, const Binar
 }
 
 bool addExtraKribbzToTransactionExtra(std::vector<uint8_t>& tx_extra, const BinaryArray& extra_kribbz) {
-  if (extra_kribbz.size() + 2 > TX_EXTRA_KRIBZZ_MAX_COUNT) {
+  if (extra_kribbz.size() + 3 > TX_EXTRA_KRIBZZ_MAX_COUNT) {
     return false;
   }
   size_t start_pos = tx_extra.size();
-  tx_extra.resize(tx_extra.size() + 2 + extra_kribbz.size());
+  tx_extra.resize(tx_extra.size() + 3 + extra_kribbz.size());
   //write tag
   tx_extra[start_pos] = TX_EXTRA_KRIBBZ;
   //write len
