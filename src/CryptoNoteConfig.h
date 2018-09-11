@@ -99,7 +99,8 @@ const char     MINER_CONFIG_FILE_NAME[]                      = "miner_conf.json"
 const char     CRYPTONOTE_NAME[]                             = "kribbz";
 const char     GENESIS_COINBASE_TX_HEX[]                     =
 //"010a01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101c8b3eb861829c338eded4298e4ed66a1e41cbcc884a779c177e46f480014e08d";
-"010a01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121012d8363178452b4bda8b01f0cb5babd1279bf1b2eb8df78432fb9976e12513875";
+//"010a01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121012d8363178452b4bda8b01f0cb5babd1279bf1b2eb8df78432fb9976e12513875";
+"010a01ff0001c5f5b7d9a43a029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121011fbbf320dddbf195f982429ff05aa47f3b53261653afe0fb7ce660010cdfd031";
 
 const uint32_t GENESIS_NONCE                                 = 70;
 const uint64_t GENESIS_TIMESTAMP                             = 1529201466;
