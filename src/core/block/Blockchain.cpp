@@ -10,7 +10,6 @@
 #include "rpc/CoreRpcServerCommandsDefinitions.h"
 #include "Serialization/BinarySerializationTools.h"
 #include "base/CryptoNoteTools.h"
-#include "core/trans/TransactionExtra.h"
 
 using namespace Logging;
 using namespace Common;
@@ -380,7 +379,7 @@ bool Blockchain::haveSpentKeyImages(const CryptoNote::Transaction& tx) {
 * \pre m_blockchain_lock is locked
 */
 bool Blockchain::checkTransactionSize(size_t blobSize) {
-  if (blobSize >= getCurrentCumulativeBlocksizeLimit() - m_currency.minerTxBlobReservedSize() + TX_EXTRA_KRIBZZ_MAX_COUNT) {
+  if (blobSize >= getCurrentCumulativeBlocksizeLimit() - m_currency.minerTxBlobReservedSize()) {
     logger(ERROR) << "transaction is too big " << blobSize << ", maximum allowed size is " <<
       (getCurrentCumulativeBlocksizeLimit() - m_currency.minerTxBlobReservedSize());
 
