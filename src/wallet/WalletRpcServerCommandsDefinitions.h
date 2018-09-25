@@ -259,6 +259,7 @@ using CryptoNote::ISerializer;
     uint64_t blockIndex;
     uint64_t unlockTime;
     uint64_t confirmations;
+    std::string kribbz_info;
 
     void serialize(ISerializer& s) {
       KV_MEMBER(time)
@@ -271,6 +272,7 @@ using CryptoNote::ISerializer;
       KV_MEMBER(blockIndex)
       KV_MEMBER(unlockTime)
       KV_MEMBER(confirmations)
+      KV_MEMBER(kribbz_info)
     }
   };
 
