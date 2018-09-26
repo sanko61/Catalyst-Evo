@@ -333,9 +333,9 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
                 char buf[4096];
                 memcpy(buf, &kr.s_kribbz[0], kr.s_kribbz.size());
                 
-                logger(INFO) << "1 Found s_kribbz=" << kr.s_kribbz.size();
-                logger(INFO) << "2 Found  extraKribbz=" << buf;
-                logger(INFO) << kr.s_kribbz.size() << "Found  extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
+//                logger(INFO) << "1 Found s_kribbz=" << kr.s_kribbz.size();
+//                logger(INFO) << "2 Found  extraKribbz=" << buf;
+//                logger(INFO) << kr.s_kribbz.size() << "Found  extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
                 
                 transfer.kribbz_info = buf;
                 
