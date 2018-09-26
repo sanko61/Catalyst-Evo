@@ -337,7 +337,7 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
                 logger(INFO) << "2 Found  extraKribbz=" << buf;
                 logger(INFO) << kr.s_kribbz.size() << "Found  extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
                 
-                res.transfers.kribbz_info = kr.s_kribbz
+                transfer.kribbz_info = buf;
                 
 		res.transfers.push_back(transfer);
 	}
