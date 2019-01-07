@@ -319,6 +319,7 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
 		transfer.blockIndex		 = txInfo.blockHeight;
 		transfer.unlockTime		 = txInfo.unlockTime;
 		transfer.paymentId		 = "";
+                transfer.kribbz_info		 = "";
                 transfer.confirmations = bc_height - txInfo.blockHeight;
 
 		std::vector<uint8_t> extraVec;
@@ -329,14 +330,15 @@ bool wallet_rpc_server::on_get_transfers(const wallet_rpc::COMMAND_RPC_GET_TRANS
 		transfer.paymentId = (getPaymentIdFromTxExtra(extraVec, paymentId) && paymentId != NULL_HASH ? Common::podToHex(paymentId) : "");
 
                 TransactionExtraKribbz kr;
+                char buf[4096];
                 if (getKribbzFromTxExtra(extraVec, kr)){
-                    char buf[4096];
-                    memcpy(buf, &kr.s_kribbz[0], kr.s_kribbz.size());
-    //                logger(INFO) << "1 Found s_kribbz=" << kr.s_kribbz.size();
-    //                logger(INFO) << "2 Found  extraKribbz=" << buf;
-    //                logger(INFO) << kr.s_kribbz.size() << "Found  extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
-
-                    transfer.kribbz_info = buf;
+                    logger(INFO) << "1 Found s_kribbz=" << kr.s_kribbz.size();
+                    logger(INFO) << "2 Found  extraKribbz=" << buf;
+                    logger(INFO) << kr.s_kribbz.size() << "Found  extraKribbz(Hex)=" << Common::podToHex( kr.s_kribbz);
+                    if (kr.s_kribbz.size() > 2){
+                        memcpy(buf, &kr.s_kribbz[0], kr.s_kribbz.size());
+                        transfer.kribbz_info = buf;
+                    }
                 } 
                 
 		res.transfers.push_back(transfer);
